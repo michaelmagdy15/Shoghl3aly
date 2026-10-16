@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Thndr Pro" />
+  <meta name="theme-color" content="#090d16" />
+  <link rel="manifest" href="/manifest.json" />
+  <title>Thndr EGX Pro — Live Buy/Sell Advisor</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: #131b2e;
+      --card-border: #1e293b;
+      --accent: #10b981;
+      --blue: #38bdf8;
+      --amber: #f59e0b;
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --safe-top: env(safe-area-inset-top, 16px);
+      --safe-bottom: env(safe-area-inset-bottom, 20px);
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      padding-top: calc(var(--safe-top) + 60px);
+      padding-bottom: calc(var(--safe-bottom) + 78px);
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    .top-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding-top: calc(var(--safe-top) + 8px);
+      padding-bottom: 10px;
+      padding-left: 16px;
+      padding-right: 16px;
+      background: rgba(9, 13, 22, 0.88);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--card-border);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 17px;
+      letter-spacing: -0.3px;
+    }
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .pulse-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulse 1.4s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.45); opacity: 0.45; }
+    }
+
+    .container { padding: 12px 14px; max-width: 540px; margin: 0 auto; }
+
+    .macro-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+    .macro-bar::-webkit-scrollbar { display: none; }
+    .macro-chip {
+      flex: 0 0 auto;
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .macro-chip b { color: #fbbf24; font-size: 12px; margin-left: 3px; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+    .card-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin: 0 0 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .val-hero {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+    .progress-track {
+      background: #090d16;
+      height: 14px;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0;
+      border: 1px solid #1e293b;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #38bdf8);
+      border-radius: 999px;
+      transition: width 0.5s ease;
+    }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .stat-box {
+      background: rgba(9, 13, 22, 0.55);
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+    .stat-box small { display: block; font-size: 10px; color: var(--muted); }
+    .stat-box b { font-size: 14px; color: #fff; }
+
+    .guide-card {
+      background: linear-gradient(145deg, #064e3b 0%, #0f172a 100%);
+      border: 1.5px solid #10b981;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.18);
+    }
+    .cloud-card {
+      background: linear-gradient(145deg, #0c4a6e 0%, #0f172a 100%);
+      border: 1.5px solid #38bdf8;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 25px rgba(56, 189, 248, 0.14);
+    }
+    .sell-emergency-card {
+      background: linear-gradient(145deg, #7f1d1d 0%, #1e1b4b 100%);
+      border: 2px solid #ef4444;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+      animation: borderGlow 1.5s infinite;
+    }
+    .market-hours-card {
+      background: linear-gradient(145deg, #111827 0%, #0f172a 100%);
+      border: 1.5px solid #334155;
+      border-radius: 18px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .market-hours-card.is-open {
+      border-color: #10b981;
+      background: linear-gradient(145deg, rgba(6, 78, 59, 0.55) 0%, #0f172a 100%);
+    }
+    .market-hours-card.is-closed {
+      border-color: #f59e0b;
+      background: linear-gradient(145deg, rgba(120, 53, 15, 0.45) 0%, #0f172a 100%);
+    }
+    .mkt-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      background: rgba(9, 13, 22, 0.65);
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+    .mkt-pill-open {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid #10b981;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .mkt-pill-pre {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid #f59e0b;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .mkt-pill-closed {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border: 1px solid #ef4444;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    @keyframes borderGlow {
+      0%, 100% { box-shadow: 0 0 12px rgba(239,68,68,0.4); }
+      50% { box-shadow: 0 0 24px rgba(239,68,68,0.85); }
+    }
+    .step-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: flex-start;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .step-num {
+      background: #10b981;
+      color: #052e16;
+      font-weight: 800;
+      font-size: 12px;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .btn {
+      flex: 1;
+      min-width: 100px;
+      border: none;
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.12s ease;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-green { background: #10b981; color: #052e16; }
+    .btn-blue { background: #0284c7; color: #fff; }
+    .btn-red { background: #ef4444; color: #fff; }
+    .btn-outline { background: #1e293b; color: #e2e8f0; border: 1px solid #334155; }
+
+    .stock-item {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid #1e293b;
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 10px;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    .flash-up { background: rgba(16, 185, 129, 0.22) !important; border-color: #10b981 !important; }
+    .flash-dn { background: rgba(239, 68, 68, 0.22) !important; border-color: #ef4444 !important; }
+
+    .stock-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .ticker-badge {
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sig-badge {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .sig-strong { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+    .sig-buy { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #0284c7; }
+    .sig-sell { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+    .sig-wait { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid #334155; }
+
+    .mini-bars {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 8px 0;
+      background: #090d16;
+      padding: 8px 10px;
+      border-radius: 10px;
+    }
+    .bar-label { font-size: 10px; color: var(--muted); display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .bar-bg { background: #1e293b; height: 6px; border-radius: 999px; overflow: hidden; }
+    .bar-fg { height: 100%; border-radius: 999px; }
+
+    .search-input {
+      width: 100%;
+      background: #090d16;
+      border: 1px solid #334155;
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      margin-bottom: 10px;
+      outline: none;
+    }
+    .filter-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 10px; }
+    .filter-pill {
+      flex: 0 0 auto;
+      background: #1e293b;
+      color: #cbd5e1;
+      border: 1px solid #334155;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .filter-pill.active { background: #10b981; color: #052e16; border-color: #10b981; font-weight: 800; }
+
+    .tab-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      padding-bottom: calc(var(--safe-bottom) + 4px);
+      padding-top: 8px;
+      background: rgba(9, 13, 22, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--card-border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      z-index: 100;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .tab-btn span.icon { font-size: 19px; }
+    .tab-btn.active { color: #10b981; }
+
+    .tab-view { display: none; }
+    .tab-view.active { display: block; }
+
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 18px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-box {
+      background: #131b2e;
+      border: 1px solid #334155;
+      border-radius: 20px;
+      padding: 20px;
+      width: 100%;
+      max-width: 380px;
+    }
+    .input-field {
+      width: 100%;
+      background: #090d16;
+      border: 1px solid #334155;
+      color: #fff;
+      padding: 11px 12px;
+      border-radius: 10px;
+      font-size: 15px;
+      margin-top: 4px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <div class="top-bar">
+    <div class="brand">
+      <span>⚡ Thndr EGX Pro</span>
+    </div>
+    <div class="live-pill" id="liveStatusPill">
+      <span class="pulse-dot"></span>
+      <span id="liveTickLabel">LIVE • SCANNING...</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Live Macro & Gold Ribbon -->
+    <div class="macro-bar">
+      <div class="macro-chip">🇪🇬 Stocks Scanned: <b id="macroStockCount">279</b></div>
+      <div class="macro-chip">💵 USD/EGP: <b id="macroUsdEgp">53.40</b></div>
+      <div class="macro-chip">🪙 24K Gold: <b id="macroGold24">7,181 EGP/g</b></div>
+      <div class="macro-chip">🪙 21K Gold: <b id="macroGold21">6,283 EGP/g</b></div>
+      <div class="macro-chip">☁️ Cloud Worker: <b id="cloudStatusChip" style="color:#38bdf8;">SYNCED</b></div>
+    </div>
+
+    <!-- TAB 1: HOME / DUMMY-PROOF GUIDE & PORTFOLIO -->
+    <div id="tab-home" class="tab-view active">
+
+      <!-- Urgent SELL Banner (if any owned stock triggers SELL NOW) -->
+      <div id="urgentSellContainer"></div>
+
+      <!-- LIVE MARKET OPEN/CLOSED RADAR & "WHAT IS OPEN RIGHT NOW?" MATRIX -->
+      <div class="market-hours-card is-closed" id="marketHoursRadarCard">
+        <div class="card-title" style="margin-bottom:6px;">
+          <span id="egxMainStatusBadge" style="font-size:13px;font-weight:900;color:#fbbf24;">🔴 CHECKING EGX MARKET HOURS...</span>
+          <span id="cairoLiveClock" style="font-size:11px;color:#e2e8f0;font-family:monospace;">--:--:-- Cairo</span>
+        </div>
+        <div id="egxCountdownBanner" style="font-size:13px;font-weight:700;color:#fff;margin-bottom:8px;">
+          Calculating exact Cairo trading session countdown...
+        </div>
+        <div id="egxOrderRuleBanner" style="font-size:11.5px;line-height:1.45;padding:8px 10px;border-radius:10px;background:rgba(0,0,0,0.35);margin-bottom:10px;color:#fde68a;"></div>
+
+        <div style="font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:#94a3b8;margin-bottom:6px;">
+          🕒 WHAT IS OPEN ON THNDR RIGHT NOW? (LIVE CAIRO SCHEDULE)
+        </div>
+        <div id="whatIsOpenMatrix"></div>
+      </div>
+
+      <!-- 24/7 Cloud Worker Daily Briefing Card -->
+      <div class="cloud-card" id="cloudBriefingCard">
+        <div class="card-title" style="color:#7dd3fc;">
+          <span>☁️ 24/7 CLOUD WORKER HOURLY ADVICE</span>
+          <span id="cloudTimeBadge" style="font-size:10px;color:#bae6fd;">Updating...</span>
+        </div>
+        <div id="cloudBriefingBody" style="font-size:13px;line-height:1.5;color:#e0f2fe;">
+          Connecting to your 24/7 Firebase Cloud Worker for today's fresh EGX market briefing...
+        </div>
+        <div class="btn-row" style="margin-top:10px;">
+          <button class="btn btn-outline" style="padding:8px 10px;font-size:12px;" onclick="refreshCloudWorkerNow()">⚡ Refresh Cloud Advice</button>
+          <button class="btn btn-blue" id="homePushBtn" style="padding:8px 10px;font-size:12px;" onclick="enableHourlyIphonePush()">🔔 Enable Hourly iPhone Push</button>
+        </div>
+      </div>
+
+      <!-- Dummy-Proof Step-by-Step Guide Card -->
+      <div class="guide-card" id="dummyGuideCard">
+        <div class="card-title" style="color:#6ee7b7;">
+          <span>✅ DUMMY-PROOF STEP-BY-STEP: WHAT TO DO NOW</span>
+          <span id="topPickBadge" class="sig-badge sig-strong">STRONG BUY</span>
+        </div>
+        <div id="dummyStepsContent">
+          Loading live Egyptian Stock Exchange analysis...
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-green" onclick="quickBuyTopPick()">➕ I Bought / Queued This on Thndr</button>
+          <button class="btn btn-outline" onclick="openChartForTopPick()">📊 View Live Chart</button>
+        </div>
+      </div>
+
+      <!-- Editable Portfolio Challenge Card (Adjustable Goal!) -->
+      <div class="card">
+        <div class="card-title">
+          <span id="challengeHeaderTitle">🎯 500 EGP &rarr; 5,000 EGP CHALLENGE</span>
+          <button onclick="openGoalModal()" style="background:#1e293b;border:1px solid #38bdf8;color:#38bdf8;border-radius:8px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer;">✏️ Edit Goal</button>
+        </div>
+        <div class="val-hero">
+          <span id="totalPortfolioEGP">500.00 EGP</span>
+          <span id="netProfitBadge" style="font-size:13px;color:#10b981;font-weight:700;">+0.00 EGP (0%)</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="goalProgressBar" style="width:10%;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:8px;">
+          <span id="goalPctText">10% of 5,000 EGP Goal</span>
+          <span id="estWeeksText" style="color:#fbbf24;">Est. ~9 weeks at 500 EGP/wk</span>
+        </div>
+        <div class="stats-row">
+          <div class="stat-box">
+            <small>Available Cash</small>
+            <b id="cashBalanceText">500.00 EGP</b>
+          </div>
+          <div class="stat-box">
+            <small>In Stocks</small>
+            <b id="holdingsValueText">0.00 EGP</b>
+          </div>
+          <div class="stat-box">
+            <small>Target Goal</small>
+            <b id="goalTargetText" style="color:#38bdf8;">5,000 EGP</b>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-blue" onclick="openBuyModal()">➕ Log Stock Buy</button>
+          <button class="btn btn-outline" id="weeklyDepBtn" onclick="addWeeklyDeposit()">💵 +500 EGP Week</button>
+          <button class="btn btn-outline" onclick="resetPortfolioKeepEmail()" style="flex:0 0 auto;">🔄 Reset</button>
+        </div>
+      </div>
+
+      <!-- Owned Holdings Live Monitor -->
+      <div class="card">
+        <div class="card-title">
+          <span>💼 YOUR OWNED THNDR STOCKS (LIVE SELL WATCHER)</span>
+          <span id="holdingsCountLabel">0 Stocks</span>
+        </div>
+        <div id="holdingsListContainer">
+          <p style="color:var(--muted);font-size:13px;text-align:center;margin:14px 0;">
+            You don't own any stocks yet. Follow the green Step-by-Step guide above to buy your first stock on Thndr!
+          </p>
+        </div>
+      </div>
+
+      <!-- Top 5 Quick Picks Preview -->
+      <div class="card">
+        <div class="card-title">
+          <span>🔥 TOP 5 BUY PICKS FOR YOUR BUDGET TODAY</span>
+          <span style="color:#38bdf8;cursor:pointer;" onclick="switchTab('market')">See All 279 &rarr;</span>
+        </div>
+        <div id="homeTop5Container"></div>
+      </div>
+    </div>
+
+    <!-- TAB 2: WHOLE MARKET SCANNER (ALL 279 EGX STOCKS) -->
+    <div id="tab-market" class="tab-view">
+      <div class="card">
+        <div class="card-title">
+          <span>🔎 WHOLE EGYPTIAN MARKET (ALL 279 EGP STOCKS)</span>
+          <span id="filteredCountText">279 Stocks</span>
+        </div>
+        <input type="text" id="marketSearchInput" class="search-input" placeholder="Search any EGX ticker or company (e.g. COMI, FWRY, ORWE, Gold)..." oninput="renderMarketList()" />
+        <div class="filter-row">
+          <button class="filter-pill active" id="flt-liquid" onclick="setMarketFilter('liquid')">🔥 Best Liquid Buys</button>
+          <button class="filter-pill" id="flt-budget" onclick="setMarketFilter('budget')">💰 Fits My Cash</button>
+          <button class="filter-pill" id="flt-dip" onclick="setMarketFilter('dip')">📉 Oversold Dips</button>
+          <button class="filter-pill" id="flt-div" onclick="setMarketFilter('div')">💵 High Dividend</button>
+          <button class="filter-pill" id="flt-all" onclick="setMarketFilter('all')">🌐 All 279 Stocks</button>
+        </div>
+        <div id="marketListContainer"></div>
+      </div>
+    </div>
+
+    <!-- TAB 3: LIVE INTERACTIVE CANDLESTICK + RSI + MACD CHART -->
+    <div id="tab-chart" class="tab-view">
+      <div class="card">
+        <div class="card-title">
+          <span>📊 LIVE EGX CANDLESTICK + RSI + MACD CHART</span>
+          <span id="chartTickerTitle" style="color:#10b981;font-weight:800;">EGX:EGAL</span>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <input type="text" id="chartSymbolInput" class="search-input" style="margin-bottom:0;" placeholder="Enter EGX ticker (e.g. COMI, ORWE, ABUK)..." />
+          <button class="btn btn-blue" style="flex:0 0 auto;min-width:85px;" onclick="loadCustomChartTicker()">Load</button>
+        </div>
+        <div id="chartExplainBox" style="background:#090d16;border:1px solid #1e293b;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#cbd5e1;"></div>
+        <div style="height:440px;border-radius:12px;overflow:hidden;border:1px solid #1e293b;">
+          <iframe id="tvChartIframe" src="https://s.tradingview.com/widgetembed/?frameElementId=tvChartIframe&symbol=EGX%3AEGAL&interval=D&hidesidetoolbar=0&symboledit=1&saveimage=0&toolbarbg=0f172a&studies=RSI%40tv-basicstudies%1FMACD%40tv-basicstudies&theme=dark&style=1&timezone=Africa%2FCairo" style="width:100%;height:100%;border:none;"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: ALERTS, CHALLENGE GOAL, EMAIL CONFIG & RESET -->
+    <div id="tab-settings" class="tab-view">
+      <div class="card">
+        <div class="card-title">
+          <span>📲 IPHONE 15 PRO HOURLY PUSH NOTIFICATIONS</span>
+          <span id="pushStatusBadge" style="color:#38bdf8;">HOME SCREEN PWA</span>
+        </div>
+        <p style="font-size:13px;color:#cbd5e1;line-height:1.5;margin-top:0;">
+          When you add this app to your iPhone 15 Pro Home Screen (<b>Share &rarr; Add to Home Screen</b>), tap below to receive <b>Hourly EGX Market & Pick Notifications</b> plus instant <b>SELL NOW Push Alerts</b> straight from your 24/7 Cloud Worker!
+        </p>
+        <div class="btn-row">
+          <button class="btn btn-blue" onclick="enableHourlyIphonePush()">🔔 Enable Hourly iPhone Push</button>
+          <button class="btn btn-outline" onclick="triggerTestPushFromCloud()">🚀 Send Test Push Now</button>
+        </div>
+        <p id="pushStatusText" style="font-size:12px;color:#34d399;margin-top:10px;display:none;"></p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>🎯 CUSTOMIZE YOUR CHALLENGE GOAL & WEEKLY DEPOSIT</span>
+        </div>
+        <label style="font-size:12px;color:var(--muted);">Target Portfolio Goal (EGP)</label>
+        <input type="number" id="settingsGoalInput" class="input-field" value="5000" />
+        <label style="font-size:12px;color:var(--muted);">Weekly Deposit Amount (EGP)</label>
+        <input type="number" id="settingsWeeklyInput" class="input-field" value="500" />
+        <button class="btn btn-blue" style="width:100%;" onclick="saveGoalSettingsFromTab()">💾 Save New Challenge Goal</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>📧 AUTOMATIC SELL EMAIL ALERTS</span>
+          <span style="color:#10b981;">24/7 CLOUD ACTIVE</span>
+        </div>
+        <p style="font-size:13px;color:#cbd5e1;line-height:1.5;margin-top:0;">
+          Your 24/7 Cloud Worker checks your stocks automatically and sends an immediate SELL alert email whenever any stock you own hits its <b>+12% Take-Profit Target</b>, becomes <b>Overbought (RSI &ge; 70)</b>, reverses on <b>MACD</b>, or hits its <b>-6% Stop-Loss</b>:
+        </p>
+        <label style="font-size:12px;color:var(--muted);">Alert Recipient Email</label>
+        <input type="email" id="settingsEmailInput" class="input-field" value="michael@mitrixo.com" onchange="saveEmailSetting()" />
+        <div class="btn-row">
+          <button class="btn btn-green" onclick="sendTestEmailAlert()">📨 Send Test SELL Email Now</button>
+        </div>
+        <p id="emailTestStatus" style="font-size:12px;color:#34d399;margin-top:10px;display:none;"></p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>🔄 RESET PORTFOLIO (KEEP EMAIL CONFIG INTACT)</span>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-top:0;">
+          Resets your cash balance back to your starting amount and clears your stock holdings while keeping your <b>michael@mitrixo.com</b> email alert configuration and Challenge Goal untouched.
+        </p>
+        <button class="btn btn-red" style="width:100%;" onclick="resetPortfolioKeepEmail()">🔄 Reset Portfolio (Keep Email Config)</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Buy Stock Modal -->
+  <div class="modal-backdrop" id="buyModal">
+    <div class="modal-box">
+      <h3 style="margin-top:0;color:#10b981;">➕ Record Stock Bought on Thndr</h3>
+      <label style="font-size:12px;color:var(--muted);">EGX Stock Ticker (e.g. EGAL, ORWE, MFPC)</label>
+      <input type="text" id="buyTickerInput" class="input-field" placeholder="ORWE" style="text-transform:uppercase;" oninput="autoFillBuyPrice()" />
+      <label style="font-size:12px;color:var(--muted);">Number of Shares Bought</label>
+      <input type="number" id="buySharesInput" class="input-field" placeholder="17" />
+      <label style="font-size:12px;color:var(--muted);">Buy Price per Share (EGP)</label>
+      <input type="number" step="0.01" id="buyPriceInput" class="input-field" placeholder="27.71" />
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="confirmBuyStock()">Save Position</button>
+        <button class="btn btn-outline" onclick="closeBuyModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Challenge Goal Modal -->
+  <div class="modal-backdrop" id="goalModal">
+    <div class="modal-box">
+      <h3 style="margin-top:0;color:#38bdf8;">🎯 Adjust Your Challenge Goal</h3>
+      <label style="font-size:12px;color:var(--muted);">New Portfolio Goal Target (EGP)</label>
+      <input type="number" id="modalGoalInput" class="input-field" placeholder="5000" />
+      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+        <button class="filter-pill" onclick="document.getElementById('modalGoalInput').value=2500">2,500 EGP</button>
+        <button class="filter-pill" onclick="document.getElementById('modalGoalInput').value=5000">5,000 EGP</button>
+        <button class="filter-pill" onclick="document.getElementById('modalGoalInput').value=10000">10,000 EGP</button>
+        <button class="filter-pill" onclick="document.getElementById('modalGoalInput').value=25000">25,000 EGP</button>
+        <button class="filter-pill" onclick="document.getElementById('modalGoalInput').value=50000">50,000 EGP</button>
+      </div>
+      <label style="font-size:12px;color:var(--muted);">Weekly Deposit Amount (EGP)</label>
+      <input type="number" id="modalWeeklyInput" class="input-field" placeholder="500" />
+      <label style="font-size:12px;color:var(--muted);">Current Available Cash Balance (EGP)</label>
+      <input type="number" step="0.01" id="modalCashInput" class="input-field" placeholder="500" />
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="confirmGoalModal()">Save Challenge</button>
+        <button class="btn btn-outline" onclick="closeGoalModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom iPhone Navigation Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="nav-home" onclick="switchTab('home')">
+      <span class="icon">🎯</span>
+      <span>Action Guide</span>
+    </button>
+    <button class="tab-btn" id="nav-market" onclick="switchTab('market')">
+      <span class="icon">⚡</span>
+      <span>All 279 Stocks</span>
+    </button>
+    <button class="tab-btn" id="nav-chart" onclick="switchTab('chart')">
+      <span class="icon">📊</span>
+      <span>Live Chart</span>
+    </button>
+    <button class="tab-btn" id="nav-settings" onclick="switchTab('settings')">
+      <span class="icon">🔔</span>
+      <span>Goal & Email</span>
+    </button>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'thndr_egx_pro_portfolio_v2';
+    const FEE_BUFFER = 4.0;
+
+    let state = loadState();
+    let marketMap = {};
+    let prevPrices = {};
+    let tickDirection = {};
+    let scanCount = 0;
+    let currentFilter = 'liquid';
+    let topPickTicker = 'EGAL';
+    let cloudBriefing = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (!parsed.goalEGP) parsed.goalEGP = 5000.0;
+          if (!parsed.weeklyDepositEGP) parsed.weeklyDepositEGP = 500.0;
+          if (!parsed.emailConfig) {
+            parsed.emailConfig = { toEmail: 'michael@mitrixo.com', enabled: true, sentAlerts: {} };
+          }
+          return parsed;
+        }
+      } catch (e) {}
+      return {
+        cashEGP: 500.0,
+        totalInvested: 500.0,
+        goalEGP: 5000.0,
+        weeklyDepositEGP: 500.0,
+        holdings: [],
+        emailConfig: {
+          toEmail: 'michael@mitrixo.com',
+          enabled: true,
+          sentAlerts: {}
+        }
+      };
+    }
+
+    function saveState(syncToCloud = true) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      document.getElementById('settingsEmailInput').value = state.emailConfig.toEmail || 'michael@mitrixo.com';
+      document.getElementById('settingsGoalInput').value = state.goalEGP || 5000;
+      document.getElementById('settingsWeeklyInput').value = state.weeklyDepositEGP || 500;
+      if (syncToCloud) {
+        pushPortfolioToCloudWorker();
+      }
+    }
+
+    async function syncFromCloudWorker(forceRefresh = false) {
+      try {
+        const url = '/api/advisor' + (forceRefresh ? '?refresh=1' : '');
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data && data.ok) {
+          if (data.portfolio) {
+            state.cashEGP = Number(data.portfolio.cashEGP ?? state.cashEGP);
+            state.totalInvested = Number(data.portfolio.totalInvested ?? state.totalInvested);
+            state.goalEGP = Number(data.portfolio.goalEGP ?? state.goalEGP ?? 5000);
+            state.weeklyDepositEGP = Number(data.portfolio.weeklyDepositEGP ?? state.weeklyDepositEGP ?? 500);
+            if (Array.isArray(data.portfolio.holdings)) state.holdings = data.portfolio.holdings;
+            if (data.portfolio.emailConfig) state.emailConfig = data.portfolio.emailConfig;
+            saveState(false);
+          }
+          if (data.briefing) {
+            cloudBriefing = data.briefing;
+            renderCloudBriefing();
+          }
+          document.getElementById('cloudStatusChip').textContent = 'LIVE 24/7';
+          renderAll();
+        }
+      } catch (e) {
+        renderCloudBriefingFallback();
+      }
+    }
+
+    async function pushPortfolioToCloudWorker() {
+      try {
+        const res = await fetch('/api/advisor', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'save_portfolio',
+            portfolio: state
+          })
+        });
+        const data = await res.json();
+        if (data && data.ok && data.briefing) {
+          cloudBriefing = data.briefing;
+          renderCloudBriefing();
+        }
+      } catch (e) {}
+    }
+
+    async function refreshCloudWorkerNow() {
+      document.getElementById('cloudTimeBadge').textContent = 'Refreshing Cloud Worker...';
+      await syncFromCloudWorker(true);
+    }
+
+    function renderCloudBriefing() {
+      if (!cloudBriefing) return renderCloudBriefingFallback();
+      document.getElementById('cloudTimeBadge').textContent = cloudBriefing.cairoTimestamp || 'Today';
+      const gPick = cloudBriefing.picks && cloudBriefing.picks.topGrowth;
+      const dPick = cloudBriefing.picks && cloudBriefing.picks.topDip;
+      const divPick = cloudBriefing.picks && cloudBriefing.picks.topDividend;
+
+      document.getElementById('cloudBriefingBody').innerHTML = `
+        <div style="font-weight:700;color:#fff;margin-bottom:6px;">${cloudBriefing.dailyAdviceHeadline}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:11px;margin-bottom:6px;">
+          <span style="background:rgba(0,0,0,0.3);padding:3px 8px;border-radius:6px;">📊 Mood: <b>${cloudBriefing.marketMood}</b> (${cloudBriefing.gainers}▲ / ${cloudBriefing.losers}▼)</span>
+          <span style="background:rgba(0,0,0,0.3);padding:3px 8px;border-radius:6px;">🏆 Hot Sector: <b>${cloudBriefing.topSector}</b></span>
+        </div>
+        <div style="font-size:12px;color:#bae6fd;">
+          ${gPick ? `• <b>#1 Growth Pick:</b> <a href="javascript:void(0)" onclick="openChart('${gPick.ticker}')" style="color:#34d399;font-weight:bold;">${gPick.ticker}</a> (${gPick.price} EGP &rarr; Sell @ ${gPick.targetPrice} EGP)<br>` : ''}
+          ${dPick ? `• <b>#1 Dip Bounce:</b> <a href="javascript:void(0)" onclick="openChart('${dPick.ticker}')" style="color:#38bdf8;font-weight:bold;">${dPick.ticker}</a> (${dPick.price} EGP, RSI ${dPick.rsi})<br>` : ''}
+          ${divPick ? `• <b>#1 Dividend Pick:</b> <a href="javascript:void(0)" onclick="openChart('${divPick.ticker}')" style="color:#fbbf24;font-weight:bold;">${divPick.ticker}</a> (${divPick.price} EGP, Yield ${divPick.divYield}%)` : ''}
+        </div>
+      `;
+    }
+
+    function renderCloudBriefingFallback() {
+      const all = Object.values(marketMap).filter(s => s.isLiquid).sort((a, b) => b.score - a.score);
+      if (all.length === 0) return;
+      const gPick = all[0];
+      const dPick = all.find(s => s.rsi <= 42 && s.ticker !== gPick.ticker) || all[1];
+      const gainers = all.filter(s => s.change > 0).length;
+      const losers = all.filter(s => s.change < 0).length;
+      document.getElementById('cloudTimeBadge').textContent = 'Live Daily Scan';
+      document.getElementById('cloudBriefingBody').innerHTML = `
+        <div style="font-weight:700;color:#fff;margin-bottom:6px;">✅ TODAY'S DAILY BRIEFING: Focus on ${gPick.ticker} (${gPick.price.toFixed(2)} EGP &rarr; Target ${gPick.targetPrice.toFixed(2)} EGP) & ${dPick ? dPick.ticker : ''}.</div>
+        <div style="font-size:12px;color:#bae6fd;">
+          • <b>Market Breadth:</b> ${gainers} liquid gainers ▲ vs ${losers} decliners ▼<br>
+          • <b>#1 Growth Pick:</b> <b>${gPick.ticker}</b> (Score ${gPick.score}/100 — ${gPick.plainWhy})<br>
+          ${dPick ? `• <b>#1 Oversold Dip:</b> <b>${dPick.ticker}</b> (RSI ${dPick.rsi}, Price ${dPick.price.toFixed(2)} EGP)` : ''}
+        </div>
+      `;
+    }
+
+    // Open & Save Editable Challenge Goal Modal
+    function openGoalModal() {
+      document.getElementById('modalGoalInput').value = state.goalEGP || 5000;
+      document.getElementById('modalWeeklyInput').value = state.weeklyDepositEGP || 500;
+      document.getElementById('modalCashInput').value = state.cashEGP.toFixed(2);
+      document.getElementById('goalModal').classList.add('open');
+    }
+
+    function closeGoalModal() {
+      document.getElementById('goalModal').classList.remove('open');
+    }
+
+    function confirmGoalModal() {
+      const newGoal = parseFloat(document.getElementById('modalGoalInput').value);
+      const newWeekly = parseFloat(document.getElementById('modalWeeklyInput').value);
+      const newCash = parseFloat(document.getElementById('modalCashInput').value);
+      if (newGoal > 0) state.goalEGP = Number(newGoal.toFixed(2));
+      if (newWeekly > 0) state.weeklyDepositEGP = Number(newWeekly.toFixed(2));
+      if (!isNaN(newCash) && newCash >= 0) state.cashEGP = Number(newCash.toFixed(2));
+      saveState(true);
+      closeGoalModal();
+      renderAll();
+    }
+
+    function saveGoalSettingsFromTab() {
+      const g = parseFloat(document.getElementById('settingsGoalInput').value);
+      const w = parseFloat(document.getElementById('settingsWeeklyInput').value);
+      if (g > 0) state.goalEGP = Number(g.toFixed(2));
+      if (w > 0) state.weeklyDepositEGP = Number(w.toFixed(2));
+      saveState(true);
+      renderAll();
+      alert('✅ Challenge Goal updated to ' + state.goalEGP.toLocaleString() + ' EGP (Weekly Deposit: ' + state.weeklyDepositEGP.toLocaleString() + ' EGP)!');
+    }
+
+    // Reset Portfolio while keeping Email Config & Challenge Goal intact!
+    function resetPortfolioKeepEmail() {
+      const savedEmailConfig = {
+        toEmail: (state.emailConfig && state.emailConfig.toEmail) ? state.emailConfig.toEmail : 'michael@mitrixo.com',
+        enabled: true,
+        sentAlerts: {}
+      };
+      const savedGoal = state.goalEGP || 5000.0;
+      const savedWeekly = state.weeklyDepositEGP || 500.0;
+      const customCash = prompt('Reset Portfolio (Email config ' + savedEmailConfig.toEmail + ' & Goal ' + savedGoal.toLocaleString() + ' EGP will be kept intact).\nEnter starting cash in EGP:', String(savedWeekly));
+      if (customCash === null) return;
+      const startAmount = parseFloat(customCash) > 0 ? parseFloat(customCash) : savedWeekly;
+      state = {
+        cashEGP: startAmount,
+        totalInvested: startAmount,
+        goalEGP: savedGoal,
+        weeklyDepositEGP: savedWeekly,
+        holdings: [],
+        emailConfig: savedEmailConfig
+      };
+      saveState(true);
+      renderAll();
+      alert('✅ Portfolio reset to ' + startAmount.toFixed(2) + ' EGP!\nYour email config (' + savedEmailConfig.toEmail + ') was kept intact.');
+    }
+
+    function saveEmailSetting() {
+      const val = document.getElementById('settingsEmailInput').value.trim();
+      if (val) {
+        state.emailConfig.toEmail = val;
+        saveState(true);
+      }
+    }
+
+    async function dispatchSellEmail(subject, messageText) {
+      const toEmail = (state.emailConfig && state.emailConfig.toEmail) ? state.emailConfig.toEmail : 'michael@mitrixo.com';
+      try {
+        const res = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(toEmail), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            _subject: subject,
+            _template: 'table',
+            _captcha: 'false',
+            Portfolio: 'Thndr EGX Pro Challenge (' + (state.goalEGP || 5000).toLocaleString() + ' EGP)',
+            Directive: messageText,
+            Time: new Date().toLocaleString()
+          })
+        });
+        return await res.json();
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function sendTestEmailAlert() {
+      const statusEl = document.getElementById('emailTestStatus');
+      const toEmail = state.emailConfig.toEmail || 'michael@mitrixo.com';
+      statusEl.style.display = 'block';
+      statusEl.textContent = '⏳ Sending test SELL alert email to ' + toEmail + '...';
+      await dispatchSellEmail(
+        '🚨 Thndr EGX Pro — Live SELL Alert Test Connected!',
+        'Your iPhone 15 Pro Thndr Web App + 24/7 Cloud Worker is connected to ' + toEmail + '. Whenever any stock you own hits its +12% Sell Target, becomes Overbought (RSI >= 70), or triggers a Stop-Loss, you will receive an immediate email here!'
+      );
+      statusEl.textContent = '✅ Test email sent to ' + toEmail + '! (Check your inbox—if this is your first time, click the 1-time Activate button from FormSubmit).';
+    }
+
+    async function fetchMacroAndGold() {
+      try {
+        const res = await fetch('https://scanner.tradingview.com/global/scan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+          body: JSON.stringify({
+            symbols: { tickers: ['FX_IDC:USDEGP', 'TVC:GOLD'] },
+            columns: ['name', 'close', 'change']
+          })
+        });
+        const data = await res.json();
+        let usdEgp = 53.40;
+        let goldOz = 4180.0;
+        if (data && data.data) {
+          for (const row of data.data) {
+            if (row.s === 'FX_IDC:USDEGP' && row.d[1]) usdEgp = Number(row.d[1]);
+            if (row.s === 'TVC:GOLD' && row.d[1]) goldOz = Number(row.d[1]);
+          }
+        }
+        const gold24 = Math.round((goldOz * usdEgp) / 31.1034768);
+        const gold21 = Math.round(gold24 * 0.875);
+        document.getElementById('macroUsdEgp').textContent = usdEgp.toFixed(2) + ' EGP';
+        document.getElementById('macroGold24').textContent = gold24.toLocaleString() + ' EGP/g';
+        document.getElementById('macroGold21').textContent = gold21.toLocaleString() + ' EGP/g';
+      } catch (e) {}
+    }
+
+    async function fetchWholeEGXMarket() {
+      try {
+        const body = {
+          filter: [{ left: 'currency', operation: 'equal', right: 'EGP' }],
+          columns: [
+            'name', 'description', 'close', 'change', 'RSI', 'Recommend.All',
+            'SMA20', 'SMA50', 'SMA200', 'price_earnings_ttm', 'dividends_yield_current',
+            'Value.Traded', 'MACD.macd', 'MACD.signal', 'BB.lower', 'BB.upper', 'sector'
+          ],
+          sort: { sortBy: 'Value.Traded', sortOrder: 'desc' },
+          range: [0, 350]
+        };
+
+        const res = await fetch('https://scanner.tradingview.com/egypt/scan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+          body: JSON.stringify(body)
+        });
+        const json = await res.json();
+        if (!json || !json.data) return;
+
+        scanCount++;
+        const nextMap = {};
+
+        for (const item of json.data) {
+          const d = item.d;
+          const ticker = String(d[0] || '');
+          const fullName = String(d[1] || ticker);
+          const price = Number(d[2] || 0);
+          if (price <= 0) continue;
+
+          const change = Number(d[3] || 0);
+          const rsi = d[4] != null ? Number(d[4]) : 50;
+          const rec = d[5] != null ? Number(d[5]) : 0;
+          const sma20 = d[6] != null ? Number(d[6]) : price;
+          const sma50 = d[7] != null ? Number(d[7]) : price;
+          const sma200 = d[8] != null ? Number(d[8]) : price;
+          const pe = d[9] != null ? Number(d[9]) : 0;
+          const divYield = d[10] != null ? Number(d[10]) : 0;
+          const valTraded = d[11] != null ? Number(d[11]) : 0;
+          const macd = d[12] != null ? Number(d[12]) : 0;
+          const macdSig = d[13] != null ? Number(d[13]) : 0;
+          const bbLower = d[14] != null ? Number(d[14]) : price * 0.95;
+          const bbUpper = d[15] != null ? Number(d[15]) : price * 1.05;
+          const sector = String(d[16] || 'General');
+
+          if (prevPrices[ticker] != null) {
+            if (price > prevPrices[ticker]) tickDirection[ticker] = 'up';
+            else if (price < prevPrices[ticker]) tickDirection[ticker] = 'dn';
+            else tickDirection[ticker] = '';
+          }
+          prevPrices[ticker] = price;
+
+          let score = 50.0;
+          const reasons = [];
+          let plainWhy = 'Solid market activity.';
+
+          const isLiquid = (valTraded >= 10000000 && price >= 1.50 && change > -4.0);
+          if (valTraded >= 35000000) score += 8;
+          else if (valTraded < 5000000) score -= 25;
+          if (change <= -4.0) score -= 18;
+
+          if (rsi <= 33) {
+            score += 20;
+            reasons.push('Cheap Dip (RSI ' + Math.round(rsi) + ')');
+            plainWhy = 'Stock just had a big discount dip and is primed to bounce back up.';
+          } else if (rsi <= 48) {
+            score += 14;
+            reasons.push('Good Entry (RSI ' + Math.round(rsi) + ')');
+            plainWhy = 'Price cooled off to a safe entry point before the next push higher.';
+          } else if (rsi <= 63) {
+            score += 10;
+            reasons.push('Rising Trend (RSI ' + Math.round(rsi) + ')');
+            plainWhy = 'Buyers are in control and pushing the stock steadily higher.';
+          } else if (rsi >= 70) {
+            score -= 25;
+            reasons.push('Overbought (RSI ' + Math.round(rsi) + ')');
+            plainWhy = 'Price jumped too fast and is overheated — high risk of pullback.';
+          }
+
+          if (price > sma200) {
+            score += 10;
+            if (price > sma20 && sma20 > sma50) {
+              score += 8;
+              reasons.push('Strong Uptrend');
+            } else if (price < sma20) {
+              score += 7;
+              reasons.push('Pullback in Uptrend');
+            }
+          } else {
+            score -= 12;
+            if (price < sma50) score -= 6;
+          }
+
+          const macdBull = macd > macdSig;
+          if (macdBull) {
+            score += 8;
+            reasons.push('MACD Buy');
+          } else {
+            score -= 4;
+          }
+
+          if (price <= bbLower * 1.02) {
+            score += 7;
+            reasons.push('Near Bottom Band');
+          } else if (price >= bbUpper * 0.99 && rsi >= 65) {
+            score -= 10;
+          }
+
+          score += (rec * 14.0);
+          if (pe > 0 && pe <= 10) {
+            score += 7;
+            reasons.push('Low P/E ' + pe.toFixed(1) + 'x');
+          }
+          if (divYield >= 3.5) {
+            score += 6;
+            reasons.push('Div ' + divYield.toFixed(1) + '%');
+          }
+
+          score = Math.max(5, Math.min(99, Number(score.toFixed(1))));
+
+          let signal = 'WAIT / WATCH';
+          if (score >= 74 && rsi < 66 && isLiquid) signal = 'STRONG BUY';
+          else if (score >= 65 && rsi < 65 && isLiquid) signal = 'BUY';
+          else if (rsi >= 70 || score <= 42) signal = 'SELL / AVOID';
+
+          nextMap[ticker] = {
+            ticker,
+            fullName,
+            price,
+            change,
+            rsi: Math.round(rsi),
+            macdBull,
+            sma50,
+            sma200,
+            pe: pe > 0 ? pe.toFixed(1) : '-',
+            divYield: divYield > 0 ? Number(divYield.toFixed(1)) : 0,
+            valTradedM: (valTraded / 1e6).toFixed(1),
+            isLiquid,
+            score,
+            signal,
+            targetPrice: Number((price * 1.12).toFixed(2)),
+            stopLoss: Number((price * 0.95).toFixed(2)),
+            sector,
+            why: reasons.join(' • '),
+            plainWhy
+          };
+        }
+
+        marketMap = nextMap;
+        const totalStocks = Object.keys(marketMap).length;
+        document.getElementById('macroStockCount').textContent = totalStocks;
+        const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.getElementById('liveTickLabel').textContent = 'LIVE • ' + totalStocks + ' EGX • ' + nowStr;
+        if (!cloudBriefing) renderCloudBriefingFallback();
+        renderAll();
+      } catch (e) {
+        document.getElementById('liveTickLabel').textContent = 'RECONNECTING...';
+      }
+    }
+
+    function renderAll() {
+      const goalEGP = Number(state.goalEGP || 5000);
+      const weeklyDep = Number(state.weeklyDepositEGP || 500);
+      const investableCash = Math.max(0, state.cashEGP - FEE_BUFFER);
+      const allStocks = Object.values(marketMap).sort((a, b) => b.score - a.score);
+
+      // 1. Evaluate Owned Holdings
+      let holdingsVal = 0;
+      const urgentSells = [];
+      const holdingsHtml = [];
+      const todayKey = new Date().toISOString().slice(0, 10);
+
+      state.holdings.forEach((h, idx) => {
+        const m = marketMap[h.ticker];
+        const livePrice = m ? m.price : h.buyPrice;
+        const val = h.shares * livePrice;
+        holdingsVal += val;
+        const cost = h.shares * h.buyPrice;
+        const pnlEGP = val - cost;
+        const pnlPct = cost > 0 ? ((livePrice - h.buyPrice) / h.buyPrice) * 100 : 0;
+        const targetSell = (h.buyPrice * 1.12).toFixed(2);
+        const stopSell = (h.buyPrice * 0.94).toFixed(2);
+
+        let directive = 'KEEP HOLDING';
+        let badgeCls = 'sig-buy';
+        let note = 'Trend intact. Sell when price reaches ' + targetSell + ' EGP.';
+
+        if (pnlPct >= 12.0) {
+          directive = '🚨 SELL NOW (TAKE PROFIT)';
+          badgeCls = 'sig-sell';
+          note = 'Hit +' + pnlPct.toFixed(1) + '% profit target! Open Thndr & SELL all ' + h.shares + ' shares now!';
+        } else if (m && m.rsi >= 70 && pnlPct >= 4.0) {
+          directive = '🚨 SELL NOW (OVERBOUGHT)';
+          badgeCls = 'sig-sell';
+          note = 'Stock is overheated (RSI ' + m.rsi + ') with +' + pnlPct.toFixed(1) + '% profit. Sell now!';
+        } else if (m && !m.macdBull && m.rsi >= 65 && pnlPct >= 6.0) {
+          directive = '🚨 SELL NOW (REVERSAL)';
+          badgeCls = 'sig-sell';
+          note = 'MACD turned down after +' + pnlPct.toFixed(1) + '% gain. Lock in profit!';
+        } else if (pnlPct <= -6.0 && m && livePrice < m.sma50) {
+          directive = '🚨 SELL NOW (STOP LOSS)';
+          badgeCls = 'sig-sell';
+          note = 'Dropped ' + pnlPct.toFixed(1) + '% below safety trend. Sell to protect cash.';
+        }
+
+        if (directive.includes('SELL NOW')) {
+          urgentSells.push({ ...h, livePrice, pnlEGP, pnlPct, directive, note });
+          const alertId = h.ticker + '_' + todayKey;
+          if (!state.emailConfig.sentAlerts[alertId]) {
+            state.emailConfig.sentAlerts[alertId] = true;
+            saveState(true);
+            dispatchSellEmail(
+              '🚨 THNDR SELL ALERT: SELL ' + h.ticker + ' @ ' + livePrice.toFixed(2) + ' EGP!',
+              h.ticker + ': ' + directive + ' | Shares: ' + h.shares + ' | Buy: ' + h.buyPrice + ' EGP -> Live: ' + livePrice.toFixed(2) + ' EGP (' + (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(2) + '%) | ' + note
+            );
+          }
+        }
+
+        const pnlColor = pnlEGP >= 0 ? '#10b981' : '#ef4444';
+        holdingsHtml.push(`
+          <div class="stock-item">
+            <div class="stock-top">
+              <div class="ticker-badge">${h.ticker} <small style="font-size:12px;color:var(--muted);font-weight:500;">${h.shares} sh @ ${h.buyPrice.toFixed(2)}</small></div>
+              <span class="sig-badge ${badgeCls}">${directive}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+              <span>Live: <b>${livePrice.toFixed(2)} EGP</b></span>
+              <span style="color:${pnlColor};font-weight:800;">${pnlEGP >= 0 ? '+' : ''}${pnlEGP.toFixed(2)} EGP (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%)</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:8px;">
+              <span>🎯 Sell Target: <b style="color:#10b981;">${targetSell} EGP</b></span>
+              <span>🛡️ Stop-Loss: <b style="color:#f59e0b;">${stopSell} EGP</b></span>
+            </div>
+            <div style="font-size:12px;color:#cbd5e1;margin-bottom:8px;">${note}</div>
+            <div class="btn-row" style="margin-top:4px;">
+              <button class="btn btn-red" style="padding:7px 10px;font-size:12px;" onclick="sellHolding(${idx})">💰 Log Sale on Thndr</button>
+              <button class="btn btn-outline" style="padding:7px 10px;font-size:12px;" onclick="openChart('${h.ticker}')">📊 Chart</button>
+            </div>
+          </div>
+        `);
+      });
+
+      document.getElementById('holdingsCountLabel').textContent = state.holdings.length + ' Stocks';
+      document.getElementById('holdingsListContainer').innerHTML = holdingsHtml.length > 0
+        ? holdingsHtml.join('')
+        : `<p style="color:var(--muted);font-size:13px;text-align:center;margin:14px 0;">You don't own any stocks yet. Follow the green Step-by-Step guide above to buy your first stock on Thndr!</p>`;
+
+      const urgentEl = document.getElementById('urgentSellContainer');
+      urgentEl.innerHTML = urgentSells.length > 0
+        ? urgentSells.map(u => `
+          <div class="sell-emergency-card">
+            <div style="font-weight:900;font-size:15px;color:#fca5a5;margin-bottom:6px;">🚨 URGENT: TIME TO SELL ${u.ticker} ON THNDR!</div>
+            <div style="font-size:14px;line-height:1.45;">Open Thndr &rarr; Tap <b>${u.ticker}</b> &rarr; <b>SELL all ${u.shares} shares</b> at <b>${u.livePrice.toFixed(2)} EGP</b>!</div>
+            <div style="font-size:12px;color:#fecaca;margin-top:4px;">${u.note} (Alert emailed to ${state.emailConfig.toEmail})</div>
+          </div>
+        `).join('')
+        : '';
+
+      // Update Challenge Goal & Totals
+      const totalVal = state.cashEGP + holdingsVal;
+      const netProfit = totalVal - state.totalInvested;
+      const netPct = state.totalInvested > 0 ? (netProfit / state.totalInvested) * 100 : 0;
+      const goalPct = Math.min(100, Number(((totalVal / goalEGP) * 100).toFixed(1)));
+
+      let estWeeks = 0;
+      let sim = totalVal;
+      while (sim < goalEGP && estWeeks < 260) {
+        sim = sim * 1.022 + weeklyDep;
+        estWeeks++;
+      }
+
+      document.getElementById('challengeHeaderTitle').innerHTML = `🎯 ${weeklyDep.toLocaleString()} EGP/WK &rarr; ${goalEGP.toLocaleString()} EGP CHALLENGE`;
+      document.getElementById('totalPortfolioEGP').textContent = totalVal.toFixed(2) + ' EGP';
+      document.getElementById('netProfitBadge').textContent = (netProfit >= 0 ? '+' : '') + netProfit.toFixed(2) + ' EGP (' + (netPct >= 0 ? '+' : '') + netPct.toFixed(1) + '%)';
+      document.getElementById('netProfitBadge').style.color = netProfit >= 0 ? '#10b981' : '#ef4444';
+      document.getElementById('goalPctText').textContent = goalPct + '% of ' + goalEGP.toLocaleString() + ' EGP Goal';
+      document.getElementById('estWeeksText').textContent = totalVal >= goalEGP ? '🏆 GOAL REACHED!' : `Est. ~${estWeeks} wks @ +${weeklyDep} EGP/wk`;
+      document.getElementById('goalProgressBar').style.width = Math.max(4, goalPct) + '%';
+      document.getElementById('cashBalanceText').textContent = state.cashEGP.toFixed(2) + ' EGP';
+      document.getElementById('holdingsValueText').textContent = holdingsVal.toFixed(2) + ' EGP';
+      document.getElementById('goalTargetText').textContent = goalEGP.toLocaleString() + ' EGP';
+      document.getElementById('weeklyDepBtn').textContent = `💵 +${weeklyDep} EGP Week`;
+
+      // 2. Dummy-Proof #1 Pick (with Live EGX Market Open/Closed Protection!)
+      const mktInfo = computeLiveMarketHoursCairo();
+      const affordableBuys = allStocks.filter(s => s.price <= investableCash && (s.signal === 'STRONG BUY' || s.signal === 'BUY') && s.isLiquid);
+      const topPick = affordableBuys.length > 0 ? affordableBuys[0] : (allStocks.find(s => s.isLiquid) || allStocks[0]);
+
+      if (topPick) {
+        topPickTicker = topPick.ticker;
+        const qty = Math.floor(investableCash / topPick.price);
+        const totalCost = (qty * topPick.price).toFixed(2);
+        const estProfit = (qty * (topPick.targetPrice - topPick.price)).toFixed(2);
+        const leftover = Math.max(0, state.cashEGP - (qty * topPick.price)).toFixed(2);
+
+        if (qty >= 1) {
+          const closedWarningHtml = mktInfo.egxState !== 'OPEN'
+            ? `<div style="background:rgba(245,158,11,0.18);border:1.5px solid #f59e0b;border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;line-height:1.45;color:#fef3c7;">
+                <b>⚠️ EGX STOCKS ARE CURRENTLY CLOSED (${mktInfo.nextEventLabel} in ${mktInfo.countdownExact}):</b><br>
+                Do <b>NOT</b> use a "Market Order" right now on Thndr (it will fail because the exchange is closed).<br>
+                <b>What to do right now:</b><br>
+                • <b>Option A (Queue Order Now):</b> In Step 3 below, choose <b>Limit Price (${topPick.price.toFixed(2)} EGP)</b> on Thndr — Thndr will queue your order and buy automatically at <b>10:00 AM Cairo open</b>!<br>
+                • <b>Option B (Buy What Is Open Now 24/7):</b> Buy <b>AZ-Gold</b> or <b>Thndr Clouds (Savings Fund)</b> on Thndr right now (24/7 order window open), or trade <b>US Stocks</b> (${mktInfo.usStatusText}).
+              </div>`
+            : `<div style="background:rgba(16,185,129,0.18);border:1.5px solid #10b981;border-radius:12px;padding:8px 12px;margin-bottom:10px;font-size:12.5px;color:#d1fae5;">
+                🟢 <b>EGX MARKET IS OPEN RIGHT NOW!</b> (${mktInfo.countdownExact} remaining before 2:30 PM close). Your order will execute immediately on Thndr!
+              </div>`;
+
+          document.getElementById('dummyStepsContent').innerHTML = `
+            ${closedWarningHtml}
+            <div class="step-item"><div class="step-num">1</div><div>Open <b>Thndr</b> on your iPhone & tap <b>Search 🔍</b>.</div></div>
+            <div class="step-item"><div class="step-num">2</div><div>Type <b style="color:#38bdf8;font-size:16px;">${topPick.ticker}</b> (${topPick.fullName}).</div></div>
+            <div class="step-item"><div class="step-num">3</div><div>Tap <b>Buy</b> &rarr; Select <b>Limit Order (${topPick.price.toFixed(2)} EGP)</b> &rarr; Enter <b style="color:#6ee7b7;">${qty} share(s)</b> (Total: ~${totalCost} EGP). ${mktInfo.egxState === 'OPEN' ? 'Executes immediately!' : 'Queues automatically for 10:00 AM open!'}</div></div>
+            <div class="step-item"><div class="step-num">4</div><div><b>When to Sell:</b> Sell at <b style="color:#fbbf24;">${topPick.targetPrice.toFixed(2)} EGP</b> for <b>+${estProfit} EGP profit</b> toward your <b>${goalEGP.toLocaleString()} EGP</b> goal!</div></div>
+            ${Number(leftover) >= 10 ? `<div style="font-size:12px;color:#a7f3d0;margin-top:6px;">💡 Put leftover <b>${leftover} EGP</b> into <b>Thndr Clouds / AZ-Gold</b> (Open 24/7) so every pound earns daily returns.</div>` : ''}
+            <div style="font-size:12px;color:#d1fae5;margin-top:6px;background:rgba(0,0,0,0.25);padding:8px;border-radius:8px;">🧠 <b>Why ${topPick.ticker}?</b> ${topPick.plainWhy} (${topPick.why})</div>
+          `;
+        } else {
+          document.getElementById('dummyStepsContent').innerHTML = `
+            <div style="font-size:14px;line-height:1.5;color:#fde68a;">
+              Your available cash is <b>${state.cashEGP.toFixed(2)} EGP</b> (most of your money is working in stocks!).<br><br>
+              <b>What to do now:</b> Keep holding your stocks until you get a <b>SELL email/push alert</b>, or tap <b>"💵 +${weeklyDep} EGP Week"</b> below when you add your weekly deposit!
+            </div>
+          `;
+        }
+      }
+
+      const top5 = allStocks.filter(s => s.isLiquid && s.price <= Math.max(495, investableCash)).slice(0, 5);
+      document.getElementById('homeTop5Container').innerHTML = top5.map(s => renderStockCard(s, investableCash)).join('');
+      renderMarketList();
+    }
+
+    function renderStockCard(s, investableCash) {
+      const qty = Math.floor(investableCash / s.price);
+      const chgColor = s.change >= 0 ? '#10b981' : '#ef4444';
+      const arrow = s.change >= 0 ? '▲' : '▼';
+      const sigCls = s.signal === 'STRONG BUY' ? 'sig-strong' : (s.signal === 'BUY' ? 'sig-buy' : (s.signal.includes('SELL') ? 'sig-sell' : 'sig-wait'));
+      const flashCls = tickDirection[s.ticker] === 'up' ? 'flash-up' : (tickDirection[s.ticker] === 'dn' ? 'flash-dn' : '');
+      const scoreColor = s.score >= 74 ? '#10b981' : (s.score >= 60 ? '#38bdf8' : '#ef4444');
+      const rsiColor = s.rsi <= 40 ? '#10b981' : (s.rsi <= 65 ? '#38bdf8' : '#ef4444');
+
+      return `
+        <div class="stock-item ${flashCls}" onclick="openChart('${s.ticker}')">
+          <div class="stock-top">
+            <div>
+              <div class="ticker-badge">
+                <span>${s.ticker}</span>
+                <span style="font-size:14px;color:${chgColor};">${arrow} ${s.price.toFixed(2)} EGP (${s.change >= 0 ? '+' : ''}${s.change.toFixed(2)}%)</span>
+              </div>
+              <div style="font-size:11px;color:var(--muted);">${s.fullName} • ${s.sector}</div>
+            </div>
+            <span class="sig-badge ${sigCls}">${s.signal}</span>
+          </div>
+
+          <div class="mini-bars">
+            <div>
+              <div class="bar-label"><span>AI Power Score</span><b style="color:${scoreColor};">${s.score}/100</b></div>
+              <div class="bar-bg"><div class="bar-fg" style="width:${s.score}%;background:${scoreColor};"></div></div>
+            </div>
+            <div>
+              <div class="bar-label"><span>Price Thermometer (RSI ${s.rsi})</span><b style="color:${rsiColor};">${s.rsi <= 40 ? 'CHEAP' : (s.rsi >= 70 ? 'HOT' : 'GOOD')}</b></div>
+              <div class="bar-bg"><div class="bar-fg" style="width:${Math.min(100, s.rsi)}%;background:${rsiColor};"></div></div>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#cbd5e1;margin-top:6px;">
+            <span>🛒 Buy: <b>${qty > 0 ? qty + ' sh (~' + Math.round(qty * s.price) + ' EGP)' : 'Need ' + Math.ceil(s.price) + ' EGP'}</b></span>
+            <span>🎯 Sell @ <b style="color:#10b981;">${s.targetPrice.toFixed(2)} EGP</b></span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">💡 ${s.why || s.plainWhy}</div>
+        </div>
+      `;
+    }
+
+    function setMarketFilter(flt) {
+      currentFilter = flt;
+      ['liquid', 'budget', 'dip', 'div', 'all'].forEach(k => {
+        const el = document.getElementById('flt-' + k);
+        if (el) el.classList.toggle('active', k === flt);
+      });
+      renderMarketList();
+    }
+
+    function renderMarketList() {
+      const investableCash = Math.max(0, state.cashEGP - FEE_BUFFER);
+      const q = (document.getElementById('marketSearchInput').value || '').trim().toUpperCase();
+      let list = Object.values(marketMap).sort((a, b) => b.score - a.score);
+
+      if (q) {
+        list = list.filter(s => s.ticker.includes(q) || s.fullName.toUpperCase().includes(q) || s.sector.toUpperCase().includes(q));
+      } else {
+        if (currentFilter === 'liquid') list = list.filter(s => s.isLiquid);
+        else if (currentFilter === 'budget') list = list.filter(s => s.price <= Math.max(495, investableCash) && s.isLiquid);
+        else if (currentFilter === 'dip') list = list.filter(s => s.rsi <= 42 && s.isLiquid);
+        else if (currentFilter === 'div') list = list.filter(s => s.divYield >= 2.0).sort((a, b) => b.divYield - a.divYield);
+      }
+
+      document.getElementById('filteredCountText').textContent = list.length + ' Stocks';
+      document.getElementById('marketListContainer').innerHTML = list.slice(0, 80).map(s => renderStockCard(s, investableCash)).join('');
+    }
+
+    function switchTab(tabName) {
+      ['home', 'market', 'chart', 'settings'].forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('active', t === tabName);
+        document.getElementById('nav-' + t).classList.toggle('active', t === tabName);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openChart(ticker) {
+      const clean = ticker.trim().toUpperCase();
+      document.getElementById('chartTickerTitle').textContent = 'EGX:' + clean;
+      document.getElementById('chartSymbolInput').value = clean;
+      const s = marketMap[clean];
+      if (s) {
+        document.getElementById('chartExplainBox').innerHTML = `
+          <b>${s.ticker} (${s.fullName})</b> — Live Price: <b>${s.price.toFixed(2)} EGP</b> | Signal: <b style="color:#10b981;">${s.signal}</b> (Score: ${s.score}/100)<br>
+          🎯 <b>Sell Target (+12%):</b> ${s.targetPrice.toFixed(2)} EGP &nbsp;|&nbsp; 🛡️ <b>Stop-Loss (-5%):</b> ${s.stopLoss.toFixed(2)} EGP<br>
+          🧠 <i>${s.plainWhy}</i>
+        `;
+      }
+      document.getElementById('tvChartIframe').src =
+        'https://s.tradingview.com/widgetembed/?frameElementId=tvChartIframe&symbol=EGX%3A' + encodeURIComponent(clean) +
+        '&interval=D&hidesidetoolbar=0&symboledit=1&saveimage=0&toolbarbg=0f172a&studies=RSI%40tv-basicstudies%1FMACD%40tv-basicstudies&theme=dark&style=1&timezone=Africa%2FCairo';
+      switchTab('chart');
+    }
+
+    function openChartForTopPick() {
+      openChart(topPickTicker);
+    }
+
+    function loadCustomChartTicker() {
+      const val = document.getElementById('chartSymbolInput').value.trim().toUpperCase();
+      if (val) openChart(val);
+    }
+
+    function quickBuyTopPick() {
+      const s = marketMap[topPickTicker];
+      const investableCash = Math.max(0, state.cashEGP - FEE_BUFFER);
+      if (!s) return;
+      const qty = Math.floor(investableCash / s.price);
+      document.getElementById('buyTickerInput').value = s.ticker;
+      document.getElementById('buySharesInput').value = qty > 0 ? qty : 1;
+      document.getElementById('buyPriceInput').value = s.price.toFixed(2);
+      document.getElementById('buyModal').classList.add('open');
+    }
+
+    function openBuyModal() {
+      document.getElementById('buyTickerInput').value = topPickTicker;
+      autoFillBuyPrice();
+      document.getElementById('buyModal').classList.add('open');
+    }
+
+    function closeBuyModal() {
+      document.getElementById('buyModal').classList.remove('open');
+    }
+
+    function autoFillBuyPrice() {
+      const t = document.getElementById('buyTickerInput').value.trim().toUpperCase();
+      if (marketMap[t]) {
+        const s = marketMap[t];
+        document.getElementById('buyPriceInput').value = s.price.toFixed(2);
+        const qty = Math.floor(Math.max(0, state.cashEGP - FEE_BUFFER) / s.price);
+        if (qty > 0) document.getElementById('buySharesInput').value = qty;
+      }
+    }
+
+    function confirmBuyStock() {
+      const t = document.getElementById('buyTickerInput').value.trim().toUpperCase();
+      const shares = parseInt(document.getElementById('buySharesInput').value, 10);
+      const price = parseFloat(document.getElementById('buyPriceInput').value);
+      if (!t || !(shares > 0) || !(price > 0)) return;
+
+      const totalCost = (shares * price) + FEE_BUFFER;
+      const existing = state.holdings.find(h => h.ticker === t);
+      if (existing) {
+        const newShares = existing.shares + shares;
+        existing.buyPrice = Number((((existing.shares * existing.buyPrice) + (shares * price)) / newShares).toFixed(2));
+        existing.shares = newShares;
+      } else {
+        state.holdings.push({ ticker: t, shares, buyPrice: Number(price.toFixed(2)) });
+      }
+      state.cashEGP = Math.max(0, Number((state.cashEGP - totalCost).toFixed(2)));
+      saveState(true);
+      closeBuyModal();
+      renderAll();
+    }
+
+    function sellHolding(idx) {
+      const h = state.holdings[idx];
+      if (!h) return;
+      const m = marketMap[h.ticker];
+      const defaultPrice = m ? m.price : h.buyPrice;
+      const pStr = prompt('Sell ' + h.shares + ' shares of ' + h.ticker + '.\nEnter Sell Price per share in EGP:', defaultPrice.toFixed(2));
+      if (pStr === null) return;
+      const sellPrice = parseFloat(pStr) > 0 ? parseFloat(pStr) : defaultPrice;
+      const proceeds = Math.max(0, (h.shares * sellPrice) - FEE_BUFFER);
+      state.cashEGP = Number((state.cashEGP + proceeds).toFixed(2));
+      state.holdings.splice(idx, 1);
+      saveState(true);
+      renderAll();
+    }
+
+    function addWeeklyDeposit() {
+      const defDep = state.weeklyDepositEGP || 500;
+      const dStr = prompt('Add Weekly Cash Deposit to your Thndr Wallet (EGP):', String(defDep));
+      if (dStr === null) return;
+      const dep = parseFloat(dStr);
+      if (dep > 0) {
+        state.cashEGP = Number((state.cashEGP + dep).toFixed(2));
+        state.totalInvested = Number((state.totalInvested + dep).toFixed(2));
+        saveState(true);
+        renderAll();
+      }
+    }
+
+    // ============================================================================
+    // LIVE CAIRO MARKET HOURS, COUNTDOWN & "WHAT IS OPEN RIGHT NOW?" ENGINE
+    // ============================================================================
+    function formatDurationSecs(totalSeconds) {
+      const s = Math.max(0, Math.floor(totalSeconds));
+      const d = Math.floor(s / 86400);
+      const h = Math.floor((s % 86400) / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      const pad = n => String(n).padStart(2, '0');
+      if (d > 0) return `${d}d ${pad(h)}h ${pad(m)}m ${pad(sec)}s`;
+      return `${pad(h)}h ${pad(m)}m ${pad(sec)}s`;
+    }
+
+    function computeLiveMarketHoursCairo() {
+      const now = new Date();
+      const cairoStr = now.toLocaleString('en-US', { timeZone: 'Africa/Cairo' });
+      const cNow = new Date(cairoStr);
+      const day = cNow.getDay(); // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const h = cNow.getHours();
+      const m = cNow.getMinutes();
+      const sec = cNow.getSeconds();
+      const secsOfDay = h * 3600 + m * 60 + sec;
+
+      const isEgxDay = day >= 0 && day <= 4; // Sun - Thu
+      const preOpenSec = 9 * 3600 + 30 * 60;  // 09:30:00
+      const openSec = 10 * 3600;              // 10:00:00
+      const closeSec = 14 * 3600 + 30 * 60;   // 14:30:00
+
+      let egxState = 'CLOSED';
+      let nextEventLabel = '';
+      let secsUntilChange = 0;
+
+      if (isEgxDay && secsOfDay >= openSec && secsOfDay < closeSec) {
+        egxState = 'OPEN';
+        secsUntilChange = closeSec - secsOfDay;
+        nextEventLabel = 'Closes Today at 2:30 PM Cairo';
+      } else if (isEgxDay && secsOfDay >= preOpenSec && secsOfDay < openSec) {
+        egxState = 'PREOPEN';
+        secsUntilChange = openSec - secsOfDay;
+        nextEventLabel = 'Main Trading Opens Today at 10:00 AM Cairo';
+      } else {
+        egxState = 'CLOSED';
+        let daysToAdd = 0;
+        if (isEgxDay && secsOfDay < openSec) {
+          daysToAdd = 0;
+        } else if (day === 4 && secsOfDay >= closeSec) {
+          daysToAdd = 3; // Thu after close -> Sun
+        } else if (day === 5) {
+          daysToAdd = 2; // Fri -> Sun
+        } else if (day === 6) {
+          daysToAdd = 1; // Sat -> Sun
+        } else {
+          daysToAdd = 1; // Sun-Wed after close -> Tomorrow
+        }
+        secsUntilChange = daysToAdd * 86400 + (openSec - secsOfDay);
+        const targetDayLabel = daysToAdd === 0 ? 'Today' : (day === 4 || day === 5 || day === 6 ? 'Sunday' : 'Tomorrow');
+        nextEventLabel = `Opens ${targetDayLabel} at 10:00 AM Cairo`;
+      }
+
+      const countdownExact = formatDurationSecs(secsUntilChange);
+
+      // US Market on Thndr (Mon-Fri: Pre-Market 11:00 AM - 4:30 PM, Main 4:30 PM - 11:00 PM Cairo)
+      const isUsDay = day >= 1 && day <= 5;
+      const usPreSec = 11 * 3600;
+      const usOpenSec = 16 * 3600 + 30 * 60;
+      const usCloseSec = 23 * 3600;
+      let usPillClass = 'mkt-pill-closed';
+      let usPillText = 'CLOSED';
+      let usStatusText = 'Opens Mon–Fri 4:30 PM Cairo';
+
+      if (isUsDay && secsOfDay >= usOpenSec && secsOfDay < usCloseSec) {
+        usPillClass = 'mkt-pill-open';
+        usPillText = '🟢 OPEN NOW';
+        usStatusText = `Open Now • Closes in ${formatDurationSecs(usCloseSec - secsOfDay)} (11:00 PM)`;
+      } else if (isUsDay && secsOfDay >= usPreSec && secsOfDay < usOpenSec) {
+        usPillClass = 'mkt-pill-pre';
+        usPillText = '🟡 PRE-MARKET';
+        usStatusText = `Main Session Opens in ${formatDurationSecs(usOpenSec - secsOfDay)} (4:30 PM Cairo)`;
+      } else if (isUsDay && secsOfDay < usOpenSec) {
+        usStatusText = `Opens Today at 4:30 PM Cairo (in ${formatDurationSecs(usOpenSec - secsOfDay)})`;
+      } else {
+        let dUs = day === 5 ? 3 : (day === 6 ? 2 : 1);
+        usStatusText = `Opens ${day === 5 || day === 6 ? 'Monday' : 'Tomorrow'} 4:30 PM Cairo (in ${formatDurationSecs(dUs * 86400 + (usOpenSec - secsOfDay))})`;
+      }
+
+      // Global Spot Gold (Mon-Fri 24h)
+      const isGoldSpotOpen = day >= 1 && day <= 5;
+      const goldSpotPillClass = isGoldSpotOpen ? 'mkt-pill-open' : 'mkt-pill-closed';
+      const goldSpotPillText = isGoldSpotOpen ? '🟢 OPEN NOW' : '🔴 WEEKEND';
+      const goldSpotDesc = isGoldSpotOpen
+        ? 'Live 24h International Gold & USD/EGP'
+        : 'Weekend Pause (Reopens Mon 1:00 AM Cairo)';
+
+      return {
+        cairoClockStr: `${dayNames[day]} ${cNow.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} Cairo`,
+        egxState,
+        nextEventLabel,
+        countdownExact,
+        usPillClass,
+        usPillText,
+        usStatusText,
+        goldSpotPillClass,
+        goldSpotPillText,
+        goldSpotDesc
+      };
+    }
+
+    function updateMarketHoursUI() {
+      const info = computeLiveMarketHoursCairo();
+      const card = document.getElementById('marketHoursRadarCard');
+      const badge = document.getElementById('egxMainStatusBadge');
+      const clock = document.getElementById('cairoLiveClock');
+      const banner = document.getElementById('egxCountdownBanner');
+      const ruleBox = document.getElementById('egxOrderRuleBanner');
+      const matrix = document.getElementById('whatIsOpenMatrix');
+      if (!card) return;
+
+      clock.textContent = info.cairoClockStr;
+
+      if (info.egxState === 'OPEN') {
+        card.className = 'market-hours-card is-open';
+        badge.innerHTML = '🟢 EGX STOCK MARKET IS OPEN NOW';
+        badge.style.color = '#34d399';
+        banner.innerHTML = `⏳ <b>${info.nextEventLabel}</b> — <span style="color:#34d399;font-family:monospace;">${info.countdownExact}</span> remaining`;
+        ruleBox.innerHTML = `✅ <b>Live Trading Active:</b> You can place instant <b>Market</b> or <b>Limit</b> orders on all 279 EGX stocks on Thndr right now!`;
+      } else if (info.egxState === 'PREOPEN') {
+        card.className = 'market-hours-card is-closed';
+        badge.innerHTML = '🟡 EGX PRE-OPEN AUCTION SESSION';
+        badge.style.color = '#fbbf24';
+        banner.innerHTML = `⏳ <b>${info.nextEventLabel}</b> — in <span style="color:#fbbf24;font-family:monospace;">${info.countdownExact}</span>`;
+        ruleBox.innerHTML = `💡 <b>Pre-Open Tip:</b> Place a <b>Limit Order</b> on Thndr now so it executes at the 10:00 AM opening bell!`;
+      } else {
+        card.className = 'market-hours-card is-closed';
+        badge.innerHTML = '🔴 EGX STOCK MARKET IS CLOSED RIGHT NOW';
+        badge.style.color = '#fca5a5';
+        banner.innerHTML = `⏰ <b>${info.nextEventLabel}</b> — Countdown: <span style="color:#fbbf24;font-family:monospace;">${info.countdownExact}</span>`;
+        ruleBox.innerHTML = `⚠️ <b>Why Thndr Rejected Your Market Order:</b> EGX only trades <b>Sun–Thu 10:00 AM – 2:30 PM Cairo</b>. While closed, either place a <b>Limit Order</b> on Thndr (queues for 10:00 AM open) OR buy assets that are <b>OPEN RIGHT NOW</b> below:`;
+      }
+
+      const egxPill = info.egxState === 'OPEN'
+        ? `<span class="mkt-pill-open">🟢 OPEN NOW</span>`
+        : (info.egxState === 'PREOPEN' ? `<span class="mkt-pill-pre">🟡 PRE-OPEN</span>` : `<span class="mkt-pill-closed">🔴 CLOSED</span>`);
+
+      matrix.innerHTML = `
+        <div class="mkt-row">
+          <div>
+            <div style="font-weight:800;color:#fff;">🇪🇬 EGX Stocks (All 279 EGP Stocks)</div>
+            <div style="font-size:11px;color:#cbd5e1;">${info.nextEventLabel} • <b>${info.countdownExact}</b></div>
+          </div>
+          ${egxPill}
+        </div>
+        <div class="mkt-row">
+          <div>
+            <div style="font-weight:800;color:#fff;">🪙 Thndr Gold & Savings (AZ-Gold / Clouds)</div>
+            <div style="font-size:11px;color:#a7f3d0;">Accepts Buy Orders 24/7 on Thndr (Executes next cut-off)</div>
+          </div>
+          <span class="mkt-pill-open">🟢 24/7 QUEUE OPEN</span>
+        </div>
+        <div class="mkt-row">
+          <div>
+            <div style="font-weight:800;color:#fff;">🇺🇸 US Stocks on Thndr (Wall Street)</div>
+            <div style="font-size:11px;color:#cbd5e1;">${info.usStatusText}</div>
+          </div>
+          <span class="${info.usPillClass}">${info.usPillText}</span>
+        </div>
+        <div class="mkt-row" style="margin-bottom:0;">
+          <div>
+            <div style="font-weight:800;color:#fff;">🌍 Global Gold Spot (24K / 21K EGP)</div>
+            <div style="font-size:11px;color:#cbd5e1;">${info.goldSpotDesc}</div>
+          </div>
+          <span class="${info.goldSpotPillClass}">${info.goldSpotPillText}</span>
+        </div>
+      `;
+    }
+
+    // ============================================================================
+    // IPHONE 15 PRO HOME SCREEN WEB PUSH NOTIFICATIONS (HOURLY + SELL ALERTS)
+    // ============================================================================
+    const VAPID_PUBLIC_KEY = 'BHvLqv69c0kQx6mjKkDnkVl88-JwvRSG2RewbDV3fE1DAEfWsn0ozEFZ4mpk5LqjV7YnYS9vPEiW2-Ika7kHtMs';
+
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
+    }
+
+    async function enableHourlyIphonePush() {
+      const statusEl = document.getElementById('pushStatusText');
+      if (statusEl) {
+        statusEl.style.display = 'block';
+        statusEl.textContent = '⏳ Connecting iPhone Home Screen Web Push...';
+      }
+
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        const msg = '📲 To receive Hourly iPhone Push Notifications:\n1. Tap the Safari Share button (bottom bar)\n2. Tap "Add to Home Screen"\n3. Open "Thndr Pro" from your iPhone 15 Pro Home Screen and tap this button again!';
+        if (statusEl) statusEl.textContent = msg;
+        alert(msg);
+        return;
+      }
+
+      try {
+        const reg = await navigator.serviceWorker.register('/sw.js');
+        await navigator.serviceWorker.ready;
+
+        const perm = await Notification.requestPermission();
+        if (perm !== 'granted') {
+          alert('⚠️ Please allow Notifications when prompted so your iPhone can receive hourly EGX briefings & SELL alerts.');
+          return;
+        }
+
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+        });
+
+        await fetch('/api/advisor', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'subscribe_push',
+            subscription: sub
+          })
+        });
+
+        const homeBtn = document.getElementById('homePushBtn');
+        if (homeBtn) homeBtn.textContent = '✅ Hourly Push ON';
+        if (statusEl) statusEl.textContent = '✅ Hourly iPhone Push Notifications are ACTIVE! You will receive hourly EGX market updates & instant SELL alerts.';
+        alert('✅ Hourly iPhone Push Notifications Activated! Check your iPhone notification banner now.');
+      } catch (e) {
+        if (statusEl) statusEl.textContent = '⚠️ Make sure you opened the app from your iPhone Home Screen icon (' + e.message + ')';
+        alert('💡 Make sure you added this website to your iPhone Home Screen (Share -> Add to Home Screen) first, then tap Enable Hourly iPhone Push!');
+      }
+    }
+
+    async function triggerTestPushFromCloud() {
+      const statusEl = document.getElementById('pushStatusText');
+      if (statusEl) {
+        statusEl.style.display = 'block';
+        statusEl.textContent = '🚀 Triggering live push notification from 24/7 Cloud Worker...';
+      }
+      try {
+        await fetch('/api/advisor', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'test_push' })
+        });
+        if (statusEl) statusEl.textContent = '✅ Live Hourly Push sent to all subscribed devices!';
+      } catch (e) {}
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+
+    // Boot & Start 1-Second Market Clock + 5-Second Live Stream + 24/7 Cloud Worker Sync
+    saveState(false);
+    updateMarketHoursUI();
+    setInterval(updateMarketHoursUI, 1000);
+    fetchMacroAndGold();
+    fetchWholeEGXMarket();
+    syncFromCloudWorker(false);
+    setInterval(fetchWholeEGXMarket, 5000);
+    setInterval(fetchMacroAndGold, 30000);
+    setInterval(() => syncFromCloudWorker(false), 180000);
+  </script>
+</body>
+</html>

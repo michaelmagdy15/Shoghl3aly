@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "faa-test-guide-v2"
+  },
+  "targets": {
+    "faa-test-guide-v2": {
+      "hosting": {
+        "thndr-egx-pro": [
+          "thndr-egx-pro"
+        ]
+      }
+    }
+  }
+}
