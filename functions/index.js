@@ -610,7 +610,10 @@ exports.thndrDailyAdvisorWorker = onSchedule(
   }
 );
 
-// 2. Live HTTP Cloud Worker Endpoint for iPhone 15 Pro App & Desktop BAT Script
+const crypto = require("crypto");
+const PASSCODE_SHA256 = "13db93d3dbe3bb864bd21ce8298388c6d2588fac81e8824205fb77412888e6fe";
+
+// 2. Live HTTP Cloud Worker Endpoint for iPhone 15 Pro App & Desktop BAT Script (Protected by 6-Digit Passcode)
 exports.thndrLiveAdvisorApi = onRequest(
   {
     cors: true,
@@ -619,6 +622,14 @@ exports.thndrLiveAdvisorApi = onRequest(
   },
   async (req, res) => {
     try {
+      const providedHash = String(req.headers["x-passcode-hash"] || req.query.ph || "");
+      const providedRaw = String(req.headers["x-passcode"] || req.query.pin || "");
+      const rawHashed = providedRaw ? crypto.createHash("sha256").update(providedRaw).digest("hex") : "";
+
+      if (providedHash !== PASSCODE_SHA256 && rawHashed !== PASSCODE_SHA256) {
+        return res.status(401).json({ ok: false, locked: true, error: "Passcode required" });
+      }
+
       if (req.method === "POST") {
         const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
         const current = await getOrInitPortfolio();

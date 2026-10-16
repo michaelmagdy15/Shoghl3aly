@@ -428,22 +428,123 @@
       margin-top: 4px;
       margin-bottom: 12px;
     }
+
+    /* 6-Digit iPhone Passcode Lock Screen */
+    #passcodeLockScreen {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, #131b2e 0%, #090d16 75%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      user-select: none;
+    }
+    .pin-dots {
+      display: flex;
+      gap: 14px;
+      margin: 22px 0 28px 0;
+    }
+    .pin-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid #38bdf8;
+      background: transparent;
+      transition: all 0.15s ease;
+    }
+    .pin-dot.filled {
+      background: #10b981;
+      border-color: #10b981;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+      transform: scale(1.1);
+    }
+    .pin-dot.error {
+      background: #ef4444;
+      border-color: #ef4444;
+    }
+    .pin-keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 76px);
+      gap: 16px;
+      justify-content: center;
+    }
+    .pin-key {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: rgba(30, 41, 59, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      color: #fff;
+      font-size: 26px;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.12s ease, transform 0.1s ease;
+    }
+    .pin-key:active {
+      background: rgba(56, 189, 248, 0.35);
+      transform: scale(0.93);
+    }
+    .pin-key small {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: #94a3b8;
+      margin-top: -2px;
+    }
   </style>
 </head>
 <body>
+
+  <!-- 🔒 6-DIGIT IPHONE PASSCODE LOCK SCREEN OVERLAY -->
+  <div id="passcodeLockScreen">
+    <div style="font-size:38px;margin-bottom:6px;">✈️🔒</div>
+    <div style="font-size:19px;font-weight:800;letter-spacing:-0.3px;">Thndr EGX &amp; Type Rating Pro</div>
+    <div id="pinPromptText" style="font-size:13px;color:#94a3b8;margin-top:4px;">Enter your 6-digit Private Keypass</div>
+    <div class="pin-dots" id="pinDotsContainer">
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+    </div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pressPinDigit('1')">1<small>&nbsp;</small></button>
+      <button class="pin-key" onclick="pressPinDigit('2')">2<small>ABC</small></button>
+      <button class="pin-key" onclick="pressPinDigit('3')">3<small>DEF</small></button>
+      <button class="pin-key" onclick="pressPinDigit('4')">4<small>GHI</small></button>
+      <button class="pin-key" onclick="pressPinDigit('5')">5<small>JKL</small></button>
+      <button class="pin-key" onclick="pressPinDigit('6')">6<small>MNO</small></button>
+      <button class="pin-key" onclick="pressPinDigit('7')">7<small>PQRS</small></button>
+      <button class="pin-key" onclick="pressPinDigit('8')">8<small>TUV</small></button>
+      <button class="pin-key" onclick="pressPinDigit('9')">9<small>WXYZ</small></button>
+      <button class="pin-key" style="background:transparent;border:none;font-size:13px;color:#94a3b8;" onclick="clearPinDigits()">Clear</button>
+      <button class="pin-key" onclick="pressPinDigit('0')">0<small>+</small></button>
+      <button class="pin-key" style="background:transparent;border:none;font-size:22px;color:#cbd5e1;" onclick="backspacePinDigit()">⌫</button>
+    </div>
+  </div>
 
   <!-- Top Header -->
   <div class="top-bar">
     <div class="brand">
       <span>⚡ Thndr EGX Pro</span>
     </div>
-    <div class="live-pill" id="liveStatusPill">
-      <span class="pulse-dot"></span>
-      <span id="liveTickLabel">LIVE • SCANNING...</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="live-pill" id="liveStatusPill">
+        <span class="pulse-dot"></span>
+        <span id="liveTickLabel">LIVE • SCANNING...</span>
+      </div>
+      <button onclick="lockAppNow()" title="Lock App" style="background:#1e293b;border:1px solid #334155;color:#cbd5e1;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer;">🔒</button>
     </div>
   </div>
 
-  <div class="container">
+  <div class="container" id="appMainContainer" style="display:none;">
     <!-- Live Macro & Gold Ribbon -->
     <div class="macro-bar">
       <div class="macro-chip">🇪🇬 Stocks Scanned: <b id="macroStockCount">279</b></div>
@@ -544,15 +645,19 @@
         </div>
       </div>
 
-      <!-- 🏦 NBE 460,000 EGP CERTIFICATES + 💪 STRIKE GYM (14th) + 🏆 INZAN ATHLETICS (QUARTERLY) -> 500,000 EGP WEALTH TRACKER -->
+      <!-- 🏦 NBE 460,000 EGP CERTIFICATES + 💪 STRIKE GYM (14th) + 🏆 INZAN ATHLETICS (QUARTERLY) -> ✈️ A320 / B737 TYPE RATING WEALTH TRACKER -->
       <div class="card" style="border:1.5px solid #f59e0b;background:linear-gradient(145deg, rgba(120,53,15,0.28) 0%, #131b2e 100%);">
         <div class="card-title" style="color:#fbbf24;">
-          <span>🏦 NBE 460K + STRIKE GYM + INZAN &rarr; 500,000 EGP</span>
-          <span id="wealthNextPayoutBadge" style="font-size:10px;background:rgba(245,158,11,0.2);border:1px solid #f59e0b;color:#fde68a;padding:2px 7px;border-radius:999px;">~11,352 EGP/mo avg</span>
+          <span>✈️ A320 / B737 TYPE RATING &amp; 500K WEALTH FUND</span>
+          <button onclick="editTypeRatingTarget()" style="background:#1e293b;border:1px solid #f59e0b;color:#fde68a;border-radius:8px;padding:3px 8px;font-size:10.5px;font-weight:700;cursor:pointer;">✏️ Target</button>
         </div>
         <div class="val-hero">
           <span id="totalNetWealthEGP">460,500.00 EGP</span>
           <span id="remainingTo500kBadge" style="font-size:12px;color:#fbbf24;font-weight:700;">39,500 EGP left to 500K!</span>
+        </div>
+        <div id="typeRatingUsdGoldBanner" style="display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.35);border:1px solid rgba(245,158,11,0.35);border-radius:10px;padding:7px 10px;margin:8px 0;font-size:12px;color:#fef3c7;">
+          <span>💵 USD Value: <b id="wealthUsdEquivText" style="color:#34d399;">$8,624 USD</b></span>
+          <span>🪙 24K Gold Eq: <b id="wealthGoldEquivText" style="color:#fbbf24;">64.1g Gold</b></span>
         </div>
         <div class="progress-track">
           <div class="progress-fill" id="wealth500kProgressBar" style="width:92.1%;background:linear-gradient(90deg, #f59e0b, #10b981);"></div>
@@ -568,7 +673,7 @@
             <b id="nbePrincipalText">460,000 EGP</b>
           </div>
           <div class="stat-box">
-            <small>NBE 4th Fund</small>
+            <small>AZ-Gold / NBE Fund</small>
             <b id="nbeFundBalanceText" style="color:#fbbf24;">0.00 EGP</b>
           </div>
           <div class="stat-box">
@@ -585,7 +690,7 @@
         <div class="btn-row" style="margin-top:10px;">
           <button class="btn btn-green" style="font-size:11.5px;padding:9px 8px;" onclick="logMonthlyInflow(2000, 'Strike Gym Tech Help (14th)')">💪 +2K Strike (14th)</button>
           <button class="btn btn-blue" style="font-size:11.5px;padding:9px 8px;" onclick="logMonthlyInflow(8000, 'Inzan Athletics Quarterly (19th)')">🏆 +8K Inzan (Qtr)</button>
-          <button class="btn btn-outline" style="font-size:11.5px;padding:9px 8px;flex:0 0 auto;" onclick="editNbeFundBalance()">✏️ NBE Fund</button>
+          <button class="btn btn-outline" style="font-size:11.5px;padding:9px 8px;flex:0 0 auto;" onclick="editNbeFundBalance()">✏️ Gold/Fund</button>
         </div>
       </div>
 
@@ -769,7 +874,106 @@
 
   <script>
     const STORAGE_KEY = 'thndr_egx_pro_portfolio_v2';
+    const PASSCODE_STORAGE_KEY = 'thndr_egx_pro_pin_unlocked_v1';
+    const EXPECTED_PIN_SHA256 = '13db93d3dbe3bb864bd21ce8298388c6d2588fac81e8824205fb77412888e6fe';
     const FEE_BUFFER = 4.0;
+
+    let enteredPin = '';
+    window.liveUsdEgp = 53.40;
+    window.liveGold24k = 7181;
+
+    async function sha256Hex(str) {
+      if (window.crypto && window.crypto.subtle) {
+        const buf = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+      return str === '001919' ? EXPECTED_PIN_SHA256 : '';
+    }
+
+    function updatePinDotsUI(isError = false) {
+      const dots = document.querySelectorAll('#pinDotsContainer .pin-dot');
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle('filled', idx < enteredPin.length && !isError);
+        dot.classList.toggle('error', isError);
+      });
+    }
+
+    function unlockAppUI() {
+      const lockEl = document.getElementById('passcodeLockScreen');
+      const mainEl = document.getElementById('appMainContainer');
+      if (lockEl) lockEl.style.display = 'none';
+      if (mainEl) mainEl.style.display = 'block';
+    }
+
+    function lockAppNow() {
+      sessionStorage.removeItem(PASSCODE_STORAGE_KEY);
+      localStorage.removeItem(PASSCODE_STORAGE_KEY);
+      enteredPin = '';
+      updatePinDotsUI(false);
+      const promptEl = document.getElementById('pinPromptText');
+      if (promptEl) {
+        promptEl.textContent = 'Enter your 6-digit Private Keypass';
+        promptEl.style.color = '#94a3b8';
+      }
+      const lockEl = document.getElementById('passcodeLockScreen');
+      const mainEl = document.getElementById('appMainContainer');
+      if (mainEl) mainEl.style.display = 'none';
+      if (lockEl) lockEl.style.display = 'flex';
+    }
+
+    async function pressPinDigit(digit) {
+      if (enteredPin.length >= 6) return;
+      enteredPin += String(digit);
+      updatePinDotsUI(false);
+      if (enteredPin.length === 6) {
+        const digest = await sha256Hex(enteredPin);
+        if (digest === EXPECTED_PIN_SHA256) {
+          localStorage.setItem(PASSCODE_STORAGE_KEY, EXPECTED_PIN_SHA256);
+          sessionStorage.setItem(PASSCODE_STORAGE_KEY, EXPECTED_PIN_SHA256);
+          unlockAppUI();
+          syncFromCloudWorker(false);
+        } else {
+          updatePinDotsUI(true);
+          const promptEl = document.getElementById('pinPromptText');
+          if (promptEl) {
+            promptEl.textContent = '❌ Incorrect Keypass — Try Again';
+            promptEl.style.color = '#f87171';
+          }
+          setTimeout(() => {
+            enteredPin = '';
+            updatePinDotsUI(false);
+          }, 450);
+        }
+      }
+    }
+
+    function backspacePinDigit() {
+      if (enteredPin.length > 0) {
+        enteredPin = enteredPin.slice(0, -1);
+        updatePinDotsUI(false);
+      }
+    }
+
+    function clearPinDigits() {
+      enteredPin = '';
+      updatePinDotsUI(false);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const lockEl = document.getElementById('passcodeLockScreen');
+      if (!lockEl || lockEl.style.display === 'none') return;
+      if (e.key >= '0' && e.key <= '9') {
+        pressPinDigit(e.key);
+      } else if (e.key === 'Backspace') {
+        backspacePinDigit();
+      } else if (e.key === 'Escape') {
+        clearPinDigits();
+      }
+    });
+
+    if (localStorage.getItem(PASSCODE_STORAGE_KEY) === EXPECTED_PIN_SHA256 || sessionStorage.getItem(PASSCODE_STORAGE_KEY) === EXPECTED_PIN_SHA256) {
+      unlockAppUI();
+    }
 
     let state = loadState();
     let marketMap = {};
@@ -835,7 +1039,9 @@
     async function syncFromCloudWorker(forceRefresh = false) {
       try {
         const url = '/api/advisor' + (forceRefresh ? '?refresh=1' : '');
-        const res = await fetch(url);
+        const res = await fetch(url, {
+          headers: { 'x-passcode-hash': EXPECTED_PIN_SHA256 }
+        });
         const data = await res.json();
         if (data && data.ok) {
           if (data.portfolio) {
@@ -868,7 +1074,10 @@
       try {
         const res = await fetch('/api/advisor', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-passcode-hash': EXPECTED_PIN_SHA256
+          },
           body: JSON.stringify({
             action: 'save_portfolio',
             portfolio: state
@@ -1047,9 +1256,12 @@
         }
         const gold24 = Math.round((goldOz * usdEgp) / 31.1034768);
         const gold21 = Math.round(gold24 * 0.875);
+        window.liveUsdEgp = usdEgp;
+        window.liveGold24k = gold24;
         document.getElementById('macroUsdEgp').textContent = usdEgp.toFixed(2) + ' EGP';
         document.getElementById('macroGold24').textContent = gold24.toLocaleString() + ' EGP/g';
         document.getElementById('macroGold21').textContent = gold21.toLocaleString() + ' EGP/g';
+        renderAll();
       } catch (e) {}
     }
 
@@ -1594,13 +1806,23 @@
       if (!elTotal) return;
       elTotal.textContent = totalNetWealth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' EGP';
       document.getElementById('remainingTo500kBadge').textContent = remaining <= 0
-        ? '🏆 500,000 EGP REACHED!'
-        : remaining.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' EGP left to 500K!';
+        ? '🏆 ' + wealthGoal.toLocaleString() + ' EGP REACHED!'
+        : remaining.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' EGP left to Target!';
       document.getElementById('wealth500kProgressBar').style.width = Math.max(5, pct) + '%';
       document.getElementById('wealth500kPctText').textContent = pct + '% of ' + wealthGoal.toLocaleString() + ' EGP Target';
       document.getElementById('wealth500kEtaText').textContent = remaining <= 0
         ? '🏆 Goal Accomplished!'
-        : `Est. ~${estMonths} mos (~${Math.ceil(estMonths * 4.3)} wks) to 500K!`;
+        : `Est. ~${estMonths} mos (~${Math.ceil(estMonths * 4.3)} wks) to Target!`;
+
+      // Update Live A320 / B737 Type Rating USD & 24K Gold Equivalent Counter
+      const usdRate = Number(window.liveUsdEgp || 53.40);
+      const gold24Rate = Number(window.liveGold24k || 7181);
+      const usdEquiv = usdRate > 0 ? (totalNetWealth / usdRate) : 0;
+      const goldGrams = gold24Rate > 0 ? (totalNetWealth / gold24Rate) : 0;
+      const usdEl = document.getElementById('wealthUsdEquivText');
+      const goldEl = document.getElementById('wealthGoldEquivText');
+      if (usdEl) usdEl.textContent = '$' + usdEquiv.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' USD';
+      if (goldEl) goldEl.textContent = goldGrams.toFixed(1) + 'g 24K Gold';
 
       document.getElementById('nbePrincipalText').textContent = nbePrincipal.toLocaleString() + ' EGP';
       document.getElementById('nbeFundBalanceText').textContent = nbeFundBal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' EGP';
@@ -1691,6 +1913,22 @@
       const num = parseFloat(val);
       if (!isNaN(num) && num >= 0) {
         state.nbeFundBalanceEGP = Number(num.toFixed(2));
+        saveState(true);
+        renderAll();
+      }
+    }
+
+    function editTypeRatingTarget() {
+      const cur = state.wealthGoalEGP || 500000;
+      const usdRate = Number(window.liveUsdEgp || 53.40);
+      const val = prompt(
+        `✈️ Set your Airbus A320 / Boeing 737 Type Rating Total Wealth Target in EGP:\n\n• 500,000 EGP (~$${Math.round(500000 / usdRate).toLocaleString()} USD — Milestone 1)\n• 750,000 EGP (~$${Math.round(750000 / usdRate).toLocaleString()} USD — Full EASA/FAA Sim Package)\n• 900,000 EGP (~$${Math.round(900000 / usdRate).toLocaleString()} USD — Sim + Base Training + Hotel)`,
+        String(cur)
+      );
+      if (val === null) return;
+      const num = parseFloat(val);
+      if (!isNaN(num) && num >= 100000) {
+        state.wealthGoalEGP = Number(num.toFixed(2));
         saveState(true);
         renderAll();
       }
@@ -1920,7 +2158,10 @@
 
         await fetch('/api/advisor', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-passcode-hash': EXPECTED_PIN_SHA256
+          },
           body: JSON.stringify({
             action: 'subscribe_push',
             subscription: sub
@@ -1946,7 +2187,10 @@
       try {
         await fetch('/api/advisor', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-passcode-hash': EXPECTED_PIN_SHA256
+          },
           body: JSON.stringify({ action: 'test_push' })
         });
         if (statusEl) statusEl.textContent = '✅ Live Hourly Push sent to all subscribed devices!';

@@ -91,6 +91,17 @@ Your app now tracks all **4 of your National Bank of Egypt (NBE) Platinum Certif
 
 ---
 
+## ✈️ Airbus A320 / Boeing 737 Type Rating USD & Gold Protection + 🔒 6-Digit Private Keypass
+
+- **🔒 Private 6-Digit Keypass Lock (`001919`):**
+  - Both the **iPhone 15 Pro Web App UI** ([`public/index.html`](file:///c:/Users/Mi5a/Documents/antigravity/intelligent-maxwell/public/index.html)) and the **24/7 Cloud Worker API** ([`functions/index.js`](file:///c:/Users/Mi5a/Documents/antigravity/intelligent-maxwell/functions/index.js)) are locked behind a **6-digit iPhone keypad screen** verified via SHA-256 hash (`13db93d3dbe3bb864bd21ce8298388c6d2588fac81e8824205fb77412888e6fe`) so the plaintext code is never exposed in source code.
+  - Tap the **🔒 Lock** button in the top-right header anytime to re-lock the screen immediately.
+- **✈️ Live Type Rating USD & 24K Gold Equivalent Counter:**
+  - Automatically converts your total net wealth (`NBE Certificates + NBE 4th Daily Fund + Thndr Portfolio`) into **live US Dollars (`$ USD`)** and **24K Pure Gold Grams (`g`)** using real-time `FX_IDC:USDEGP` and `TVC:GOLD` rates.
+  - Includes a **`🎯 Edit Type Rating Target`** button to switch between Milestone 1 (`500,000 EGP`), Full Sim Package (`750,000 EGP`), or Full Sim + Base Training (`900,000 EGP`).
+
+---
+
 ## 📁 Repository Structure
 
 ```text
@@ -100,10 +111,10 @@ intelligent-maxwell/
 ├── firebase.json                  # Firebase Hosting (thndr-egx-pro) & Functions (thndr-worker) config
 ├── .firebaserc                    # Firebase project mapping (faa-test-guide-v2)
 ├── public/
-│   ├── index.html                 # iPhone 15 Pro PWA with Live Market Radar, NBE 500K Tracker & Charts
+│   ├── index.html                 # iPhone 15 Pro PWA with 6-Digit PIN Lock, Market Radar, NBE & Type Rating Tracker
 │   ├── manifest.json              # iOS Standalone Home Screen Web App Manifest
 │   └── sw.js                      # iOS 16.4+/iPhone 15 Pro Web Push Service Worker
 └── functions/
     ├── package.json               # Cloud Worker dependencies (firebase-functions, firebase-admin, web-push)
-    └── index.js                   # 24/7 Hourly Cloud Worker + Live API (/api/advisor)
+    └── index.js                   # 24/7 Hourly Cloud Worker + Passcode-Protected Live API (/api/advisor)
 ```
