@@ -305,13 +305,61 @@ async function scanWholeEGXMarket() {
   return stocks;
 }
 
+const DEFAULT_NBE_CERTIFICATES = [
+  {
+    id: "1397980890284900037",
+    name: "Platinum Certificate Step Down",
+    principalEGP: 30000.0,
+    ratePct: 19.0,
+    monthlyPayoutEGP: 475.0,
+    payoutDayOfMonth: 12,
+    openedDate: "2024-08-11",
+    maturityDate: "2028-08-12"
+  },
+  {
+    id: "1397480890284900064",
+    name: "Platinum Certificate (360K)",
+    principalEGP: 360000.0,
+    ratePct: 17.25,
+    monthlyPayoutEGP: 5175.0,
+    payoutDayOfMonth: 15,
+    openedDate: "2026-06-14",
+    maturityDate: "2029-06-15"
+  },
+  {
+    id: "1397480890284900075",
+    name: "Platinum Certificate (60K)",
+    principalEGP: 60000.0,
+    ratePct: 17.75,
+    monthlyPayoutEGP: 887.5,
+    payoutDayOfMonth: 5,
+    openedDate: "2026-10-04",
+    maturityDate: "2029-10-05"
+  },
+  {
+    id: "1397480890284900086",
+    name: "Platinum Certificate (10K)",
+    principalEGP: 10000.0,
+    ratePct: 17.75,
+    monthlyPayoutEGP: 147.92,
+    payoutDayOfMonth: 18,
+    openedDate: "2026-10-15",
+    maturityDate: "2029-10-18"
+  }
+];
+
 async function getOrInitPortfolio() {
   const ref = db.collection(COLLECTION).doc(PORTFOLIO_DOC);
   const snap = await ref.get();
   if (snap.exists) {
     const data = snap.data();
     if (!data.goalEGP) data.goalEGP = 5000.0;
+    if (!data.wealthGoalEGP) data.wealthGoalEGP = 500000.0;
     if (!data.weeklyDepositEGP) data.weeklyDepositEGP = 500.0;
+    if (data.nbeFundBalanceEGP == null) data.nbeFundBalanceEGP = 0.0;
+    if (!Array.isArray(data.nbeCertificates) || data.nbeCertificates.length === 0) {
+      data.nbeCertificates = DEFAULT_NBE_CERTIFICATES;
+    }
     if (!data.emailConfig) {
       data.emailConfig = { toEmail: "michael@mitrixo.com", enabled: true, sentAlerts: {} };
     }
@@ -321,7 +369,10 @@ async function getOrInitPortfolio() {
     cashEGP: 500.0,
     totalInvested: 500.0,
     goalEGP: 5000.0,
+    wealthGoalEGP: 500000.0,
     weeklyDepositEGP: 500.0,
+    nbeFundBalanceEGP: 0.0,
+    nbeCertificates: DEFAULT_NBE_CERTIFICATES,
     holdings: [],
     emailConfig: {
       toEmail: "michael@mitrixo.com",
@@ -578,7 +629,10 @@ exports.thndrLiveAdvisorApi = onRequest(
             cashEGP: Number(body.portfolio.cashEGP ?? current.cashEGP),
             totalInvested: Number(body.portfolio.totalInvested ?? current.totalInvested),
             goalEGP: Number(body.portfolio.goalEGP ?? current.goalEGP ?? 5000),
+            wealthGoalEGP: Number(body.portfolio.wealthGoalEGP ?? current.wealthGoalEGP ?? 500000),
             weeklyDepositEGP: Number(body.portfolio.weeklyDepositEGP ?? current.weeklyDepositEGP ?? 500),
+            nbeFundBalanceEGP: Number(body.portfolio.nbeFundBalanceEGP ?? current.nbeFundBalanceEGP ?? 0),
+            nbeCertificates: Array.isArray(body.portfolio.nbeCertificates) ? body.portfolio.nbeCertificates : current.nbeCertificates,
             holdings: Array.isArray(body.portfolio.holdings) ? body.portfolio.holdings : current.holdings,
             emailConfig: body.portfolio.emailConfig || current.emailConfig,
             updatedAt: new Date().toISOString()

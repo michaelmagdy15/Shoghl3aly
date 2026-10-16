@@ -544,6 +544,51 @@
         </div>
       </div>
 
+      <!-- 🏦 NBE 460,000 EGP CERTIFICATES + 💪 STRIKE GYM (14th) + 🏆 INZAN ATHLETICS (QUARTERLY) -> 500,000 EGP WEALTH TRACKER -->
+      <div class="card" style="border:1.5px solid #f59e0b;background:linear-gradient(145deg, rgba(120,53,15,0.28) 0%, #131b2e 100%);">
+        <div class="card-title" style="color:#fbbf24;">
+          <span>🏦 NBE 460K + STRIKE GYM + INZAN &rarr; 500,000 EGP</span>
+          <span id="wealthNextPayoutBadge" style="font-size:10px;background:rgba(245,158,11,0.2);border:1px solid #f59e0b;color:#fde68a;padding:2px 7px;border-radius:999px;">~11,352 EGP/mo avg</span>
+        </div>
+        <div class="val-hero">
+          <span id="totalNetWealthEGP">460,500.00 EGP</span>
+          <span id="remainingTo500kBadge" style="font-size:12px;color:#fbbf24;font-weight:700;">39,500 EGP left to 500K!</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="wealth500kProgressBar" style="width:92.1%;background:linear-gradient(90deg, #f59e0b, #10b981);"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:8px;">
+          <span id="wealth500kPctText">92.1% of 500,000 EGP Target</span>
+          <span id="wealth500kEtaText" style="color:#34d399;font-weight:700;">Hits 500K by Jan 2027 (~11 wks)!</span>
+        </div>
+
+        <div class="stats-row" style="margin-bottom:10px;">
+          <div class="stat-box">
+            <small>4 NBE Certs</small>
+            <b id="nbePrincipalText">460,000 EGP</b>
+          </div>
+          <div class="stat-box">
+            <small>NBE 4th Fund</small>
+            <b id="nbeFundBalanceText" style="color:#fbbf24;">0.00 EGP</b>
+          </div>
+          <div class="stat-box">
+            <small>Thndr Total</small>
+            <b id="thndrTotalInWealthText" style="color:#10b981;">500.00 EGP</b>
+          </div>
+        </div>
+
+        <div style="font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:#fde68a;margin-bottom:6px;">
+          📅 YOUR EXACT PAYOUT &amp; MATURITY CALENDAR (TAP +LOG WHEN PAID)
+        </div>
+        <div id="nbePayoutScheduleList"></div>
+
+        <div class="btn-row" style="margin-top:10px;">
+          <button class="btn btn-green" style="font-size:11.5px;padding:9px 8px;" onclick="logMonthlyInflow(2000, 'Strike Gym Tech Help (14th)')">💪 +2K Strike (14th)</button>
+          <button class="btn btn-blue" style="font-size:11.5px;padding:9px 8px;" onclick="logMonthlyInflow(8000, 'Inzan Athletics Quarterly (19th)')">🏆 +8K Inzan (Qtr)</button>
+          <button class="btn btn-outline" style="font-size:11.5px;padding:9px 8px;flex:0 0 auto;" onclick="editNbeFundBalance()">✏️ NBE Fund</button>
+        </div>
+      </div>
+
       <!-- Owned Holdings Live Monitor -->
       <div class="card">
         <div class="card-title">
@@ -735,13 +780,25 @@
     let topPickTicker = 'EGAL';
     let cloudBriefing = null;
 
+    const DEFAULT_NBE_CERTS = [
+      { id: '1397480890284900075', name: 'NBE Platinum 60K (17.75%)', principalEGP: 60000, ratePct: 17.75, monthlyPayoutEGP: 887.50, payoutDayOfMonth: 5, openedDate: '04 Oct 2026', maturityDate: '05 Oct 2029' },
+      { id: '1397980890284900037', name: 'NBE Step Down 30K (19%)', principalEGP: 30000, ratePct: 19.00, monthlyPayoutEGP: 475.00, payoutDayOfMonth: 12, openedDate: '11 Aug 2024', maturityDate: '12 Aug 2028' },
+      { id: '1397480890284900064', name: 'NBE Platinum 360K (17.25%)', principalEGP: 360000, ratePct: 17.25, monthlyPayoutEGP: 5175.00, payoutDayOfMonth: 15, openedDate: '14 Jun 2026', maturityDate: '15 Jun 2029' },
+      { id: '1397480890284900086', name: 'NBE Platinum 10K (17.75%)', principalEGP: 10000, ratePct: 17.75, monthlyPayoutEGP: 147.92, payoutDayOfMonth: 18, openedDate: '15 Oct 2026', maturityDate: '18 Oct 2029' }
+    ];
+
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
           if (!parsed.goalEGP) parsed.goalEGP = 5000.0;
+          if (!parsed.wealthGoalEGP) parsed.wealthGoalEGP = 500000.0;
           if (!parsed.weeklyDepositEGP) parsed.weeklyDepositEGP = 500.0;
+          if (parsed.nbeFundBalanceEGP == null) parsed.nbeFundBalanceEGP = 0.0;
+          if (!Array.isArray(parsed.nbeCertificates) || parsed.nbeCertificates.length === 0) {
+            parsed.nbeCertificates = DEFAULT_NBE_CERTS;
+          }
           if (!parsed.emailConfig) {
             parsed.emailConfig = { toEmail: 'michael@mitrixo.com', enabled: true, sentAlerts: {} };
           }
@@ -752,7 +809,10 @@
         cashEGP: 500.0,
         totalInvested: 500.0,
         goalEGP: 5000.0,
+        wealthGoalEGP: 500000.0,
         weeklyDepositEGP: 500.0,
+        nbeFundBalanceEGP: 0.0,
+        nbeCertificates: DEFAULT_NBE_CERTS,
         holdings: [],
         emailConfig: {
           toEmail: 'michael@mitrixo.com',
@@ -782,7 +842,12 @@
             state.cashEGP = Number(data.portfolio.cashEGP ?? state.cashEGP);
             state.totalInvested = Number(data.portfolio.totalInvested ?? state.totalInvested);
             state.goalEGP = Number(data.portfolio.goalEGP ?? state.goalEGP ?? 5000);
+            state.wealthGoalEGP = Number(data.portfolio.wealthGoalEGP ?? state.wealthGoalEGP ?? 500000);
             state.weeklyDepositEGP = Number(data.portfolio.weeklyDepositEGP ?? state.weeklyDepositEGP ?? 500);
+            state.nbeFundBalanceEGP = Number(data.portfolio.nbeFundBalanceEGP ?? state.nbeFundBalanceEGP ?? 0);
+            if (Array.isArray(data.portfolio.nbeCertificates) && data.portfolio.nbeCertificates.length > 0) {
+              state.nbeCertificates = data.portfolio.nbeCertificates;
+            }
             if (Array.isArray(data.portfolio.holdings)) state.holdings = data.portfolio.holdings;
             if (data.portfolio.emailConfig) state.emailConfig = data.portfolio.emailConfig;
             saveState(false);
@@ -1272,6 +1337,9 @@
       document.getElementById('goalTargetText').textContent = goalEGP.toLocaleString() + ' EGP';
       document.getElementById('weeklyDepBtn').textContent = `💵 +${weeklyDep} EGP Week`;
 
+      // Update 460,000 EGP NBE Certificates + Strike Gym (14th) + Inzan Athletics (Quarterly 19th) -> 500,000 EGP Wealth Tracker
+      renderNbeAndIncomeTracker(totalVal);
+
       // 2. Dummy-Proof #1 Pick (with Live EGX Market Open/Closed Protection!)
       const mktInfo = computeLiveMarketHoursCairo();
       const affordableBuys = allStocks.filter(s => s.price <= investableCash && (s.signal === 'STRONG BUY' || s.signal === 'BUY') && s.isLiquid);
@@ -1500,6 +1568,129 @@
       if (dep > 0) {
         state.cashEGP = Number((state.cashEGP + dep).toFixed(2));
         state.totalInvested = Number((state.totalInvested + dep).toFixed(2));
+        saveState(true);
+        renderAll();
+      }
+    }
+
+    // ============================================================================
+    // NBE 460,000 EGP CERTIFICATES + STRIKE GYM (14th) + INZAN ATHLETICS (QTR 19th)
+    // ============================================================================
+    function renderNbeAndIncomeTracker(thndrTotalVal) {
+      const certs = Array.isArray(state.nbeCertificates) && state.nbeCertificates.length > 0
+        ? state.nbeCertificates
+        : DEFAULT_NBE_CERTS;
+      const nbePrincipal = certs.reduce((acc, c) => acc + Number(c.principalEGP || 0), 0);
+      const nbeFundBal = Number(state.nbeFundBalanceEGP || 0);
+      const wealthGoal = Number(state.wealthGoalEGP || 500000);
+      const totalNetWealth = nbePrincipal + nbeFundBal + thndrTotalVal;
+      const remaining = Math.max(0, wealthGoal - totalNetWealth);
+      const pct = Math.min(100, Number(((totalNetWealth / wealthGoal) * 100).toFixed(1)));
+
+      const avgMonthlyInflow = 6685.42 + 2000.0 + (8000.0 / 3.0) + ((state.weeklyDepositEGP || 500) * 4);
+      const estMonths = remaining > 0 ? (remaining / avgMonthlyInflow).toFixed(1) : '0.0';
+
+      const elTotal = document.getElementById('totalNetWealthEGP');
+      if (!elTotal) return;
+      elTotal.textContent = totalNetWealth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' EGP';
+      document.getElementById('remainingTo500kBadge').textContent = remaining <= 0
+        ? '🏆 500,000 EGP REACHED!'
+        : remaining.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' EGP left to 500K!';
+      document.getElementById('wealth500kProgressBar').style.width = Math.max(5, pct) + '%';
+      document.getElementById('wealth500kPctText').textContent = pct + '% of ' + wealthGoal.toLocaleString() + ' EGP Target';
+      document.getElementById('wealth500kEtaText').textContent = remaining <= 0
+        ? '🏆 Goal Accomplished!'
+        : `Est. ~${estMonths} mos (~${Math.ceil(estMonths * 4.3)} wks) to 500K!`;
+
+      document.getElementById('nbePrincipalText').textContent = nbePrincipal.toLocaleString() + ' EGP';
+      document.getElementById('nbeFundBalanceText').textContent = nbeFundBal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' EGP';
+      document.getElementById('thndrTotalInWealthText').textContent = thndrTotalVal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' EGP';
+
+      const scheduleRows = [
+        {
+          dayLabel: '5th Every Mo',
+          title: '🏦 NBE 60,000 EGP Cert (17.75%)',
+          sub: 'ID ...0075 • Opened 04 Oct 2026 • Matures 05 Oct 2029',
+          amount: 887.50,
+          badge: '+887.50 EGP'
+        },
+        {
+          dayLabel: '12th Every Mo',
+          title: '🏦 NBE 30,000 EGP Step-Down (19%)',
+          sub: 'ID ...0037 • Opened 11 Aug 2024 • Matures 12 Aug 2028',
+          amount: 475.00,
+          badge: '+475.00 EGP'
+        },
+        {
+          dayLabel: '14th Every Mo',
+          title: '💪 Strike Gym (Tech Help Pay)',
+          sub: 'Monthly Recurring Tech Support Income',
+          amount: 2000.00,
+          badge: '+2,000 EGP'
+        },
+        {
+          dayLabel: '15th Every Mo',
+          title: '🏦 NBE 360,000 EGP Cert (17.25%)',
+          sub: 'ID ...0064 • Opened 14 Jun 2026 • Matures 15 Jun 2029',
+          amount: 5175.00,
+          badge: '+5,175 EGP'
+        },
+        {
+          dayLabel: '18th Every Mo',
+          title: '🏦 NBE 10,000 EGP Cert (17.75%)',
+          sub: 'ID ...0086 • Opened 15 Oct 2026 • Matures 18 Oct 2029',
+          amount: 147.92,
+          badge: '+147.92 EGP'
+        },
+        {
+          dayLabel: 'Quarterly 19th',
+          title: '🏆 Inzan Athletics (Quarterly Pay)',
+          sub: '1st Paid: 19 Aug 2026 • Next: 19 Nov 2026, 19 Feb, 19 May',
+          amount: 8000.00,
+          badge: '+8,000 EGP'
+        }
+      ];
+
+      document.getElementById('nbePayoutScheduleList').innerHTML = scheduleRows.map(r => `
+        <div class="mkt-row" style="padding:7px 10px;">
+          <div style="padding-right:8px;">
+            <div style="font-weight:800;color:#fff;font-size:12px;">${r.title} <span style="color:#fbbf24;">(${r.dayLabel})</span></div>
+            <div style="font-size:10.5px;color:#94a3b8;">${r.sub}</div>
+          </div>
+          <button onclick="logMonthlyInflow(${r.amount}, '${r.title.replace(/'/g, '')}')" style="background:rgba(16,185,129,0.2);border:1px solid #10b981;color:#34d399;border-radius:8px;padding:5px 8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">
+            ${r.badge}
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function logMonthlyInflow(amount, label) {
+      const dest = prompt(
+        `💰 Log +${amount.toLocaleString()} EGP from ${label}:\n\nType 1 to add to your Thndr Cash Wallet (for EGX Stocks / AZ-Gold)\nType 2 to add to your NBE 4th Daily Fund ("El Yawmy" ~21% compounding)`,
+        '1'
+      );
+      if (dest === null) return;
+      if (dest.trim() === '2') {
+        state.nbeFundBalanceEGP = Number(((state.nbeFundBalanceEGP || 0) + amount).toFixed(2));
+        saveState(true);
+        renderAll();
+        alert(`✅ Added +${amount.toLocaleString()} EGP to your NBE 4th Daily Fund balance!`);
+      } else {
+        state.cashEGP = Number((state.cashEGP + amount).toFixed(2));
+        state.totalInvested = Number((state.totalInvested + amount).toFixed(2));
+        saveState(true);
+        renderAll();
+        alert(`✅ Added +${amount.toLocaleString()} EGP to your Thndr Cash Wallet!`);
+      }
+    }
+
+    function editNbeFundBalance() {
+      const cur = state.nbeFundBalanceEGP || 0;
+      const val = prompt('Enter your current NBE 4th Daily Fund ("El Yawmy") / Reinvested NBE Cash Balance in EGP:', String(cur));
+      if (val === null) return;
+      const num = parseFloat(val);
+      if (!isNaN(num) && num >= 0) {
+        state.nbeFundBalanceEGP = Number(num.toFixed(2));
         saveState(true);
         renderAll();
       }

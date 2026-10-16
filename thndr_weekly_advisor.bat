@@ -675,7 +675,14 @@ function Show-Dashboard {
     $GoalPct = [Math]::Min(100.0, [Math]::Round(($TotalPortfolioValue / $CurrentGoal) * 100, 1))
     $ProgressBar = Draw-Bar -Value $GoalPct -Max 100.0 -Width 25
 
-    Write-Host "  PORTFOLIO GOAL : [$ProgressBar] $GoalPct% ($TotalPortfolioValue EGP / $CurrentGoal EGP) [Press 9 to Edit Goal]" -ForegroundColor White
+    $TotalWealth500k = [Math]::Round(460000.0 + $TotalPortfolioValue, 2)
+    $WealthPct = [Math]::Min(100.0, [Math]::Round(($TotalWealth500k / 500000.0) * 100, 1))
+    $WealthBar = Draw-Bar -Value $WealthPct -Max 100.0 -Width 25
+    $LeftTo500k = [Math]::Max(0, [Math]::Round(500000.0 - $TotalWealth500k, 0))
+
+    Write-Host "  500K WEALTH    : [$WealthBar] $WealthPct% ($TotalWealth500k / 500,000 EGP | Only $LeftTo500k EGP left!)" -ForegroundColor Yellow
+    Write-Host "  INCOME DATES   : 5th: +887.50 (60K) | 12th: +475 (30K) | 14th: +2,000 (Strike Gym) | 15th: +5,175 (360K) | 18th: +147.92 (10K) | Qtr 19th: +8,000 (Inzan)" -ForegroundColor Cyan
+    Write-Host "  THNDR GOAL     : [$ProgressBar] $GoalPct% ($TotalPortfolioValue EGP / $CurrentGoal EGP) [Press 9 to Edit Goal]" -ForegroundColor White
     Write-Host "  YOUR WALLET    : Cash: $([Math]::Round($Portfolio.CashEGP, 2)) EGP  |  Stocks Owned: $([Math]::Round($HoldingsValue, 2)) EGP  |  Total Profit: $(if($NetProfit -ge 0){"+$NetProfit"}else{"$NetProfit"}) EGP" -ForegroundColor Gray
     Write-Host "  LIVE GOLD & FX : USD/EGP: $($MacroData.USDEGP) EGP  |  24K Gold: $($MacroData.Gold24kEGP) EGP/g  |  21K Gold: $($MacroData.Gold21kEGP) EGP/g  |  Email: $($Portfolio.EmailConfig.ToEmail)" -ForegroundColor DarkYellow
     Write-Host ""

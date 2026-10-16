@@ -75,6 +75,22 @@ Whenever you log a stock purchase, the system monitors it continuously and alert
 
 ---
 
+## 🏦 NBE `460,000 EGP` Certificates + Strike Gym + Inzan Athletics &rarr; `500,000 EGP` Master Plan
+
+Your app now tracks all **4 of your National Bank of Egypt (NBE) Platinum Certificates (`460,000 EGP` total)**, your **Strike Gym monthly tech pay (`2,000 EGP` on the 14th)**, and your **Inzan Athletics quarterly pay (`8,000 EGP` every 3 months on the 19th)** toward your **`500,000 EGP`** goal:
+
+| Date / Schedule | Source / Certificate ID | Principal | Rate | Opened Date | Maturity Date | **Cash Inflow** |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **5th of Every Month** | NBE Platinum `#1397480890284900075` | `60,000 EGP` | `17.75%` | `04 Oct 2026` | **`05 Oct 2029`** | **`+887.50 EGP / mo`** |
+| **12th of Every Month** | NBE Step-Down `#1397980890284900037` | `30,000 EGP` | `19.00%` | `11 Aug 2024` | **`12 Aug 2028`** | **`+475.00 EGP / mo`** |
+| **14th of Every Month** | **💪 Strike Gym (Tech Help)** | — | — | Recurring | Monthly | **`+2,000.00 EGP / mo`** |
+| **15th of Every Month** | NBE Platinum `#1397480890284900064` | `360,000 EGP` | `17.25%` | `14 Jun 2026` | **`15 Jun 2029`** | **`+5,175.00 EGP / mo`** |
+| **18th of Every Month** | NBE Platinum `#1397480890284900086` | `10,000 EGP` | `17.75%` | `15 Oct 2026` | **`18 Oct 2029`** | **`+147.92 EGP / mo`** |
+| **Quarterly (19 Nov, 19 Feb, 19 May, 19 Aug)** | **🏆 Inzan Athletics** | — | — | `19 Aug 2026` | Quarterly | **`+8,000.00 EGP / qtr`** *(`~2,666.67/mo`)* |
+| **TOTAL** | **`460,000 EGP` Base Principal** | **`460,000 EGP`** | **`17.44%` avg** | — | `2028–2029` | **`8,685.42 EGP / mo` + `8,000 EGP / qtr` (`~11,352 EGP/mo` avg)** |
+
+---
+
 ## 📁 Repository Structure
 
 ```text
@@ -84,7 +100,7 @@ intelligent-maxwell/
 ├── firebase.json                  # Firebase Hosting (thndr-egx-pro) & Functions (thndr-worker) config
 ├── .firebaserc                    # Firebase project mapping (faa-test-guide-v2)
 ├── public/
-│   ├── index.html                 # iPhone 15 Pro PWA with Live Market Radar, Charts & Goal Editor
+│   ├── index.html                 # iPhone 15 Pro PWA with Live Market Radar, NBE 500K Tracker & Charts
 │   ├── manifest.json              # iOS Standalone Home Screen Web App Manifest
 │   └── sw.js                      # iOS 16.4+/iPhone 15 Pro Web Push Service Worker
 └── functions/
